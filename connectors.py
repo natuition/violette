@@ -3,7 +3,7 @@
 import telnetlib
 import re
 import socket
-from threading import Thread
+from threading import Thread, Lock
 import json
 
 
@@ -64,7 +64,7 @@ class PythonConnectorServer:
         except:
             pass
 
-    def start(self, shared_resourse: list):
+    def start(self, shared_resourse: list, locker: Lock):
         if self._verbose:
             print("Waiting for client connection...")
 
@@ -85,7 +85,9 @@ class PythonConnectorServer:
                 self._incoming_connection.close()
                 break
 
+            locker.acquire()
             shared_resourse.append(received_data)
+            locker.release()
 
 
 class PythonConnectorClient:
@@ -136,10 +138,13 @@ def _test_SmoothieConnector():
 
 
 def _test_PythonConnectorServer():
-    def writer(data_list: list):
+    def writer(data_list: list, locker: Lock):
         while True:
             if len(data_list) > 0:
+                locker.acquire()
                 item = data_list.pop(0)
+                locker.release()
+
                 if item == "stop":
                     print("Stopping writer thread.")
                     break
@@ -152,8 +157,9 @@ def _test_PythonConnectorServer():
     data_list = list()
     pcs = PythonConnectorServer(host, port, verbose=True)
 
-    t1 = Thread(target=pcs.start, args=(data_list,), name="Th-Connector")
-    t2 = Thread(target=writer, args=(data_list,), name="Th-Writer")
+    lock = Lock()
+    t1 = Thread(target=pcs.start, args=(data_list, lock,), name="Th-Connector")
+    t2 = Thread(target=writer, args=(data_list, lock,), name="Th-Writer")
 
     t1.start()
     t2.start()
