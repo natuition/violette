@@ -40,9 +40,10 @@ class SmoothieConnector:
                 if self._verbose:
                     print("Sent code: " + command.strip())
 
-                responce = ""
-                while responce.count("ok".encode('ascii')) > 0:
-                    responce = self._tn.read_some()
+                # responce = ""
+                # while responce.count("ok".encode('ascii')) > 0:
+                responce = self._tn.read_some().decode()
+                return responce
 
 
 class PythonConnectorServer:
@@ -126,12 +127,12 @@ def _test_SmoothieConnector():
     g_code = "G0 X10 Y5 F200"
     host = "192.168.1.222"
     sc = SmoothieConnector(verbose=True)
-    if sc.connect(host):
-        print("Connection established.")
-        if sc.send(g_code):
-            print("Code executed successfully.")
-    if sc.disconnect():
-        print("Connection closed normally.")
+    sc.connect(host)
+    print("Connection established. Sending data.")
+    resp = sc.send(g_code)
+    print("Response: " + resp)
+    sc.disconnect()
+    print("Connection closed normally.")
 
 
 def _test_PythonConnectorServer():
@@ -151,8 +152,8 @@ def _test_PythonConnectorServer():
     data_list = list()
     pcs = PythonConnectorServer(host, port, verbose=True)
 
-    t1 = Thread(target=pcs.start, args=(data_list,))
-    t2 = Thread(target=writer, args=(data_list,))
+    t1 = Thread(target=pcs.start, args=(data_list,), name="Th-Connector")
+    t2 = Thread(target=writer, args=(data_list,), name="Th-Writer")
 
     t1.start()
     t2.start()
