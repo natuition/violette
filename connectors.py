@@ -23,10 +23,9 @@ class SmoothieConnector:
             return True
         except KeyboardInterrupt:
             exit()
-        except Exception as ex:
-            if self._verbose:
-                print(type(ex))
-                print(ex.args)
+        except Exception:
+            tb = traceback.format_exc()
+            print(tb)
             return False
 
     def disconnect(self):
@@ -38,10 +37,9 @@ class SmoothieConnector:
             return True
         except KeyboardInterrupt:
             exit()
-        except Exception as ex:
-            if self._verbose:
-                print(type(ex))
-                print(ex.args)
+        except Exception:
+            tb = traceback.format_exc()
+            print(tb)
             return False
 
     def send(self, command: str):
@@ -67,10 +65,9 @@ class SmoothieConnector:
                     return True
         except KeyboardInterrupt:
             exit()
-        except Exception as ex:
-            if self._verbose:
-                print(type(ex))
-                print(ex.args)
+        except Exception:
+            tb = traceback.format_exc()
+            print(tb)
             return False
 
 
