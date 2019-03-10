@@ -40,10 +40,10 @@ class SmoothieConnector:
                 if self._verbose:
                     print("Sent code: " + command.strip())
 
-                # responce = ""
-                # while responce.count("ok".encode('ascii')) > 0:
-                responce = self._tn.read_some().decode()
-                return responce
+                while True:
+                    responce = self._tn.read_some()
+                    if responce.count("ok".encode('ascii')) > 0:
+                        return responce.decode()
 
 
 class PythonConnectorServer:
@@ -128,8 +128,8 @@ class PythonConnectorClient:
 def _test_SmoothieConnector():
     g_code = "G0 X10 Y5 F200"
     host = "192.168.1.222"
-    sc = SmoothieConnector(verbose=True)
-    sc.connect(host)
+    sc = SmoothieConnector(host, verbose=True)
+    sc.connect()
     print("Connection established. Sending data.")
     resp = sc.send(g_code)
     print("Response: " + resp)
@@ -169,4 +169,5 @@ def _test_PythonConnectorServer():
 
 
 if __name__ == "__main__":
-    _test_PythonConnectorServer()
+    #_test_PythonConnectorServer()
+    _test_SmoothieConnector()
