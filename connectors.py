@@ -92,9 +92,10 @@ class PythonConnectorServer:
 
 class PythonConnectorClient:
 
-    def __init__(self, host, port, verbose=False):
+    def __init__(self, host, port, bufsize=4096, verbose=False):
         self._host = host
         self._port = port
+        self._buffer_size = bufsize
         self._verbose = verbose
         self._socket = socket.socket()
 
@@ -123,6 +124,18 @@ class PythonConnectorClient:
             print("Sending: " + str(data))
 
         self._socket.send(json.dumps(data).encode())
+
+        if self._verbose:
+            print("Waiting for response...")
+
+        response = self._socket.recv(self._buffer_size).decode()
+        if response:
+            return json.loads(response)
+        else:
+            if self._verbose:
+                print("Connection was closed from the other side.")
+            self._socket.close()
+            return None
 
 
 def _test_SmoothieConnector():
