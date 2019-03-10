@@ -4,7 +4,6 @@ import telnetlib
 import re
 import socket
 from threading import Thread
-import traceback
 import json
 
 
@@ -17,34 +16,17 @@ class SmoothieConnector:
         self._tn = None
 
     def connect(self):
-        try:
-            self._tn = telnetlib.Telnet(self._host)
-            # read Smoothie startup prompt
-            self._tn.read_until("Smoothie command shell".encode('ascii'))
-            return True
-        except KeyboardInterrupt:
-            exit()
-        except Exception:
-            tb = traceback.format_exc()
-            print(tb)
-            return False
+        self._tn = telnetlib.Telnet(self._host)
+        # read Smoothie startup prompt
+        self._tn.read_until("Smoothie command shell".encode('ascii'))
 
     def disconnect(self):
-        try:
-            # send disconnect command
-            self._tn.write("exit".encode('ascii') + b"\n")
-            self._tn.read_all()
-            self._tn.close()
-            return True
-        except KeyboardInterrupt:
-            exit()
-        except Exception:
-            tb = traceback.format_exc()
-            print(tb)
-            return False
+        # send disconnect command
+        self._tn.write("exit".encode('ascii') + b"\n")
+        self._tn.read_all()
+        self._tn.close()
 
     def send(self, command: str):
-        try:
             if not self._allow_comments:
                 command = re.sub("[ ]*;.*", '', command)  # remove everything after ;
                 command = command.strip()  # send only the bare necessity
@@ -57,19 +39,10 @@ class SmoothieConnector:
 
                 if self._verbose:
                     print("Sent code: " + command.strip())
-            else:
-                return False
 
-            while True:
-                rep = self._tn.read_some()
-                if rep.count("ok".encode('ascii')) > 0:
-                    return True
-        except KeyboardInterrupt:
-            exit()
-        except Exception:
-            tb = traceback.format_exc()
-            print(tb)
-            return False
+                responce = ""
+                while responce.count("ok".encode('ascii')) > 0:
+                    responce = self._tn.read_some()
 
 
 class PythonConnectorServer:
