@@ -72,7 +72,7 @@ class SmoothieConnector:
             return False
 
 
-def test_smoothie_connector():
+def _test_SmoothieConnector():
     g_code = "G0 X10 Y5 F200"
     ip = "192.168.1.222"
     sc = SmoothieConnector()
@@ -85,4 +85,4 @@ def test_smoothie_connector():
 
 
 if __name__ == "__main__":
-    test_smoothie_connector()
+    pass
