@@ -91,34 +91,27 @@ class PythonConnectorServer:
             pass
 
     def start(self, shared_resourse: list):
-        try:
-            if self._verbose:
-                print("Waiting for client connection...")
+        if self._verbose:
+            print("Waiting for client connection...")
 
-            self._socket.listen(1)
-            self._incoming_connection, self._incoming_address = self._socket.accept()
+        self._socket.listen(1)
+        self._incoming_connection, self._incoming_address = self._socket.accept()
 
-            if self._verbose:
-                print("Incoming connection from " + str(self._incoming_address))
+        if self._verbose:
+            print("Incoming connection from " + str(self._incoming_address))
 
-            while True:
-                received_data = self._incoming_connection.recv(self._buffer_size).decode()
+        while True:
+            received_data = self._incoming_connection.recv(self._buffer_size).decode()
 
-                if received_data:
-                    received_data = json.loads(received_data)
-                else:
-                    if self._verbose:
-                        print("Connection was closed from the other side.")
-                    self._incoming_connection.close()
-                    break
+            if received_data:
+                received_data = json.loads(received_data)
+            else:
+                if self._verbose:
+                    print("Connection was closed from the other side.")
+                self._incoming_connection.close()
+                break
 
-                shared_resourse.append(received_data)
-        except KeyboardInterrupt:
-            self._conn_close()
-            exit()
-        except Exception:
-            tb = traceback.format_exc()
-            print(tb)
+            shared_resourse.append(received_data)
 
 
 class PythonConnectorClient:
@@ -136,20 +129,13 @@ class PythonConnectorClient:
             pass
 
     def connect(self):
-        try:
-            if self._verbose:
-                print("Connecting to " + str(self._host) + ":" + str(self._port))
+        if self._verbose:
+            print("Connecting to " + str(self._host) + ":" + str(self._port))
 
-            self._socket.connect((self._host, self._port))
+        self._socket.connect((self._host, self._port))
 
-            if self._verbose:
-                print("Connection successful")
-        except KeyboardInterrupt:
-            self._conn_close()
-            exit()
-        except Exception:
-            tb = traceback.format_exc()
-            print(tb)
+        if self._verbose:
+            print("Connection successful")
 
     def disconnect(self):
         if self._verbose:
@@ -157,17 +143,10 @@ class PythonConnectorClient:
         self._conn_close()
 
     def send(self, data):
-        try:
-            if self._verbose:
-                print("Sending: " + str(data))
+        if self._verbose:
+            print("Sending: " + str(data))
 
-            self._socket.send(json.dumps(data).encode())
-        except KeyboardInterrupt:
-            self._conn_close()
-            exit()
-        except Exception:
-            tb = traceback.format_exc()
-            print(tb)
+        self._socket.send(json.dumps(data).encode())
 
 
 def _test_SmoothieConnector():
