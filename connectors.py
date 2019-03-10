@@ -5,6 +5,7 @@ import re
 import socket
 from threading import Thread
 import traceback
+import json
 
 
 class SmoothieConnector:
@@ -83,7 +84,7 @@ class PythonConnectorServer:
         self._incoming_connection = None
         self._incoming_address = None
 
-    def _on_exception(self):
+    def _conn_close(self):
         try:
             self._incoming_connection.close()
         except:
@@ -103,22 +104,70 @@ class PythonConnectorServer:
             while True:
                 received_data = self._incoming_connection.recv(self._buffer_size).decode()
 
-                if not received_data:
+                if received_data:
+                    received_data = json.loads(received_data)
+                else:
                     if self._verbose:
                         print("Connection was closed from the other side.")
                     self._incoming_connection.close()
                     break
 
                 shared_resourse.append(received_data)
-
         except KeyboardInterrupt:
-            self._on_exception()
+            self._conn_close()
             exit()
         except Exception:
             tb = traceback.format_exc()
             print(tb)
-        finally:
-            self._on_exception()
+
+
+class PythonConnectorClient:
+
+    def __init__(self, host, port, verbose=False):
+        self._host = host
+        self._port = port
+        self._verbose = verbose
+        self._socket = socket.socket()
+
+    def _conn_close(self):
+        try:
+            self._socket.close()
+        except:
+            pass
+
+    def connect(self):
+        try:
+            if self._verbose:
+                print("Connecting to " + str(self._host) + ":" + str(self._port))
+
+            self._socket.connect((self._host, self._port))
+
+            if self._verbose:
+                print("Connection successful")
+        except KeyboardInterrupt:
+            self._conn_close()
+            exit()
+        except Exception:
+            tb = traceback.format_exc()
+            print(tb)
+
+    def disconnect(self):
+        if self._verbose:
+            print("Disconnecting from " + str(self._host) + ":" + str(self._port))
+        self._conn_close()
+
+    def send(self, data):
+        try:
+            if self._verbose:
+                print("Sending: " + str(data))
+
+            self._socket.send(json.dumps(data).encode())
+        except KeyboardInterrupt:
+            self._conn_close()
+            exit()
+        except Exception:
+            tb = traceback.format_exc()
+            print(tb)
 
 
 def _test_SmoothieConnector():
