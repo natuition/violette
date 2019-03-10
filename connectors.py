@@ -26,7 +26,7 @@ class SmoothieConnector:
         self._tn.read_all()
         self._tn.close()
 
-    def send(self, command: str):
+    def send_recv(self, command: str):
             if not self._allow_comments:
                 command = re.sub("[ ]*;.*", '', command)  # remove everything after ;
                 command = command.strip()  # send only the bare necessity
@@ -64,7 +64,7 @@ class PythonConnectorServer:
         except:
             pass
 
-    def start(self, shared_resourse: list, locker: Lock):
+    def start_receiving(self, shared_resourse: list, locker: Lock):
         if self._verbose:
             print("Waiting for client connection...")
 
@@ -88,6 +88,15 @@ class PythonConnectorServer:
             locker.acquire()
             shared_resourse.append(received_data)
             locker.release()
+
+    def send(self, data):
+        if self._verbose:
+            print("Sending answer: " + str(data))
+
+        self._socket.send(json.dumps(data).encode())
+
+        if self._verbose:
+            print("Answer sent.")
 
 
 class PythonConnectorClient:
@@ -119,7 +128,7 @@ class PythonConnectorClient:
             print("Disconnecting from " + str(self._host) + ":" + str(self._port))
         self._conn_close()
 
-    def send(self, data):
+    def send_recv(self, data):
         if self._verbose:
             print("Sending: " + str(data))
 
@@ -144,7 +153,7 @@ def _test_SmoothieConnector():
     sc = SmoothieConnector(host, verbose=True)
     sc.connect()
     print("Connection established. Sending data.")
-    resp = sc.send(g_code)
+    resp = sc.send_recv(g_code)
     print("Response: " + resp)
     sc.disconnect()
     print("Connection closed normally.")
@@ -171,7 +180,7 @@ def _test_PythonConnectorServer():
     pcs = PythonConnectorServer(host, port, verbose=True)
 
     lock = Lock()
-    t1 = Thread(target=pcs.start, args=(data_list, lock,), name="Th-Connector")
+    t1 = Thread(target=pcs.start_receiving, args=(data_list, lock,), name="Th-Connector")
     t2 = Thread(target=writer, args=(data_list, lock,), name="Th-Writer")
 
     t1.start()
