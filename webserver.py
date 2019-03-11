@@ -7,7 +7,7 @@ pcc_port = 8081
 web_host = "192.168.8.101"
 web_port = 8080
 
-pcc = PythonConnectorClient(pcc_host, pcc_port, verbose=True)
+pcc = PythonConnectorClient(pcc_host, pcc_port)
 pcc.connect()
 
 app = Flask(__name__)

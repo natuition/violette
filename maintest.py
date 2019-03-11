@@ -1,4 +1,4 @@
-from connectors import PythonConnectorClient as PCC
+from connectors import PythonConnectorClient
 from time import sleep
 
 
@@ -6,7 +6,7 @@ def main():
     host = "127.0.0.1"
     port = 8081
 
-    pcc = PCC(host, port, verbose=True)
+    pcc = PythonConnectorClient(host, port)
     pcc.connect()
 
     for i in range(5):

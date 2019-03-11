@@ -8,13 +8,15 @@ def main():
     ws_port = 8081
 
     sc = SmoothieConnector(sm_host, verbose=True)
-    pcs = PythonConnectorServer(ws_host, ws_port, verbose=True)
 
     print("Connecting to smoothie...")
     sc.connect()
     print("Connected.")
 
+    print("Waiting for connection...")
+    pcs = PythonConnectorServer(ws_host, ws_port)
     pcs.wait_connection()
+    print("Connection established. Waiting for incoming data...")
 
     while True:
         rec_data = pcs.receive()
