@@ -9,7 +9,8 @@ def main():
     pcc = PCC(host, port, verbose=True)
     pcc.connect()
     for i in range(20):
-        pcc.send_recv("G0 X5 Y5 F100")
+        pcc.send("G0 X5 Y5 F100")
+        print(pcc.receive())
         sleep(1)
 
     print("Done.")

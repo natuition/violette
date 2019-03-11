@@ -26,12 +26,12 @@ def messageReceived(methods=['GET', 'POST']):
 
 @socketio.on('my event')
 def handle_my_custom_event(json, methods=['GET', 'POST']):
-    s=str('G0 X'+str(json.get('X')) + ' Y' + str(json.get('Y')) + ' F100')
+    s = str('G0 X' + str(json.get('X')) + ' Y' + str(json.get('Y')) + ' F100')
     print(s)
-    if str(json.get('Y')) != 'None' and str(json.get('Y')) :
-      socketio.emit('my response', pcc.send_recv(s), callback=messageReceived)
- 
-      
+    if str(json.get('Y')) != 'None' and str(json.get('Y')):
+        pcc.send(s)
+        response = pcc.receive()
+        socketio.emit('my response', response, callback=messageReceived)
 
 
 if __name__ == '__main__':
