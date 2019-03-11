@@ -8,7 +8,8 @@ def main():
 
     pcc = PCC(host, port, verbose=True)
     pcc.connect()
-    for i in range(20):
+
+    for i in range(5):
         pcc.send("G0 X5 Y5 F100")
         print(pcc.receive())
         sleep(1)
@@ -16,4 +17,5 @@ def main():
     print("Done.")
 
 
-main()
+if __name__ == "__main__":
+    main()
