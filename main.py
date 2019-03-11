@@ -35,7 +35,7 @@ def main():
     print("Starting threads...")
 
     lock = Lock()
-    t1 = Thread(target=pcs.start_receiving, args=(g_codes_list, lock,), name="Web server connector thread")
+    t1 = Thread(target=pcs.receive, args=(g_codes_list, lock,), name="Web server connector thread")
     t2 = Thread(target=start_transmitting, args=(g_codes_list, lock, pcs,), name="Smoothie connector thread")
 
     t1.start()

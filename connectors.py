@@ -64,7 +64,7 @@ class PythonConnectorServer:
         except:
             pass
 
-    def start_receiving(self, shared_resourse: list, locker: Lock):
+    def wait_connection(self):
         if self._verbose:
             print("Waiting for client connection...")
 
@@ -74,26 +74,22 @@ class PythonConnectorServer:
         if self._verbose:
             print("Incoming connection from " + str(self._incoming_address))
 
-        while True:
-            if self._verbose:
-                print("Waiting for commands...")
-            
-            received_data = self._incoming_connection.recv(self._buffer_size).decode()
+    def receive(self):
+        if self._verbose:
+            print("Receiving...")
 
-            if self._verbose:
-                print("Data received.")
-            
-            if received_data:
-                received_data = json.loads(received_data)
-            else:
-                if self._verbose:
-                    print("Connection was closed from the other side.")
-                self._incoming_connection.close()
-                break
+        received_data = self._incoming_connection.recv(self._buffer_size).decode()
 
-            locker.acquire()
-            shared_resourse.append(received_data)
-            locker.release()
+        if received_data:
+            received_data = json.loads(received_data)
+            if self._verbose:
+                print("Received: " + received_data)
+            return received_data
+        else:
+            if self._verbose:
+                print("Connection was closed from the other side.")
+            self._incoming_connection.close()
+            return None
 
     def send(self, data):
         if self._verbose:
@@ -147,13 +143,13 @@ class PythonConnectorClient:
         if self._verbose:
             print("Receiving...")
 
-        response = self._socket.recv(self._buffer_size).decode()
+        received_data = self._socket.recv(self._buffer_size).decode()
 
-        if response:
-            response = json.loads(response)
+        if received_data:
+            received_data = json.loads(received_data)
             if self._verbose:
-                print("Received: " + response)
-            return response
+                print("Received: " + received_data)
+            return received_data
         else:
             if self._verbose:
                 print("Connection was closed from the other side.")
@@ -194,7 +190,7 @@ def _test_PythonConnectorServer():
     pcs = PythonConnectorServer(host, port, verbose=True)
 
     lock = Lock()
-    t1 = Thread(target=pcs.start_receiving, args=(data_list, lock,), name="Th-Connector")
+    t1 = Thread(target=pcs.receive, args=(data_list, lock,), name="Th-Connector")
     t2 = Thread(target=writer, args=(data_list, lock,), name="Th-Writer")
 
     t1.start()
