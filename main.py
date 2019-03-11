@@ -8,6 +8,7 @@ def start_transmitting(data_list: list, locker: Lock, pcs: PythonConnectorServer
 
     print("Connecting to smoothie...")
     sc.connect()
+    print("Connected.")
 
     while True:
         if len(data_list) > 0:
@@ -17,7 +18,7 @@ def start_transmitting(data_list: list, locker: Lock, pcs: PythonConnectorServer
 
             if len(item) > 0:
                 print("Sending g-code to smoothie: " + item)
-                sm_resp = sc.send_recv()
+                sm_resp = sc.send_recv(item)
                 print("Sending response from smoothie: " + sm_resp)
                 pcs.send(sm_resp)
 
@@ -44,3 +45,7 @@ def main():
     t2.join()
 
     print("Main thread done!")
+
+
+if __name__ == "__main__":
+    main()

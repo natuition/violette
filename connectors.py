@@ -75,8 +75,14 @@ class PythonConnectorServer:
             print("Incoming connection from " + str(self._incoming_address))
 
         while True:
+            if self._verbose:
+                print("Waiting for commands...")
+            
             received_data = self._incoming_connection.recv(self._buffer_size).decode()
 
+            if self._verbose:
+                print("Data received.")
+            
             if received_data:
                 received_data = json.loads(received_data)
             else:
