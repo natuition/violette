@@ -4,7 +4,7 @@ from time import sleep
 
 def main():
     host = "127.0.0.1"
-    port = 8081
+    port = 9090
 
     pcc = PythonConnectorClient(host, port)
     pcc.connect()

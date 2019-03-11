@@ -3,7 +3,8 @@ from flask_socketio import SocketIO
 from connectors import PythonConnectorClient
 
 pcc_host = "127.0.0.1"
-pcc_port = 8081
+pcc_port = 9090
+
 web_host = "192.168.8.101"
 web_port = 8080
 
@@ -30,8 +31,11 @@ def handle_my_custom_event(json, methods=['GET', 'POST']):
     print("Got from HTML: " + s)
 
     if str(json.get('Y')) != 'None' and str(json.get('Y')):
+        print("Sending g-code...")
         pcc.send(s)
+        print("Waiting for answer...")
         response = pcc.receive()
+        print("Got answer: " + response)
         socketio.emit('my response', response, callback=messageReceived)
 
 

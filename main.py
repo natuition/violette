@@ -4,8 +4,9 @@ import traceback
 
 def main():
     sm_host = "192.168.1.222"
-    ws_host = "127.0.0.1"
-    ws_port = 8081
+    
+    pcc_host = "127.0.0.1"
+    pcc_port = 9090
 
     sc = SmoothieConnector(sm_host, verbose=True)
 
@@ -14,11 +15,12 @@ def main():
     print("Connected.")
 
     print("Waiting for connection...")
-    pcs = PythonConnectorServer(ws_host, ws_port)
+    pcs = PythonConnectorServer(pcc_host, pcc_port)
     pcs.wait_connection()
-    print("Connection established. Waiting for incoming data...")
+    print("Connection established.")
 
     while True:
+        print("Waiting for incoming data...")
         rec_data = pcs.receive()
 
         if rec_data:
