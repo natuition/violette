@@ -48,57 +48,28 @@ class SmoothieConnector:
 
 class PythonConnectorServer:
 
-    def __init__(self, host, port, bufsize=4096, verbose=False):
+    def __init__(self, host, port, bufsize=4096):
         self._host = host
         self._port = port
         self._buffer_size = bufsize
-        self._verbose = verbose
         self._socket = socket.socket()
         self._socket.bind((self._host, self._port))
         self._incoming_connection = None
         self._incoming_address = None
 
-    def _conn_close(self):
-        try:
-            self._incoming_connection.close()
-        except:
-            pass
-
     def wait_connection(self):
-        if self._verbose:
-            print("Waiting for client connection...")
-
         self._socket.listen(1)
         self._incoming_connection, self._incoming_address = self._socket.accept()
 
-        if self._verbose:
-            print("Incoming connection from " + str(self._incoming_address))
+    def close_connection(self):
+        self._incoming_connection.close()
 
     def receive(self):
-        if self._verbose:
-            print("Receiving...")
-
         received_data = self._incoming_connection.recv(self._buffer_size).decode()
-
-        if received_data:
-            received_data = json.loads(received_data)
-            if self._verbose:
-                print("Received: " + received_data)
-            return received_data
-        else:
-            if self._verbose:
-                print("Connection was closed from the other side.")
-            self._incoming_connection.close()
-            return None
+        return json.loads(received_data) if received_data else None
 
     def send(self, data):
-        if self._verbose:
-            print("Sending answer: " + str(data))
-
         self._incoming_connection.send(json.dumps(data).encode())
-
-        if self._verbose:
-            print("Answer sent.")
 
 
 class PythonConnectorClient:
