@@ -99,7 +99,7 @@ class PythonConnectorServer:
         if self._verbose:
             print("Sending answer: " + str(data))
 
-        self._socket.send(json.dumps(data).encode())
+        self._incoming_connection.send(json.dumps(data).encode())
 
         if self._verbose:
             print("Answer sent.")
