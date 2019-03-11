@@ -3,7 +3,6 @@
 import telnetlib
 import re
 import socket
-from threading import Thread, Lock
 import json
 
 
@@ -74,58 +73,24 @@ class PythonConnectorServer:
 
 class PythonConnectorClient:
 
-    def __init__(self, host, port, bufsize=4096, verbose=False):
+    def __init__(self, host, port, bufsize=4096):
         self._host = host
         self._port = port
         self._buffer_size = bufsize
-        self._verbose = verbose
         self._socket = socket.socket()
 
-    def _conn_close(self):
-        try:
-            self._socket.close()
-        except:
-            pass
-
     def connect(self):
-        if self._verbose:
-            print("Connecting to " + str(self._host) + ":" + str(self._port))
-
         self._socket.connect((self._host, self._port))
 
-        if self._verbose:
-            print("Connection successful")
-
     def disconnect(self):
-        if self._verbose:
-            print("Disconnecting from " + str(self._host) + ":" + str(self._port))
-        self._conn_close()
+        self._socket.close()
 
     def send(self, data):
-        if self._verbose:
-            print("Sending: " + str(data))
-
         self._socket.send(json.dumps(data).encode())
 
-        if self._verbose:
-            print("Sending successful.")
-
     def receive(self):
-        if self._verbose:
-            print("Receiving...")
-
         received_data = self._socket.recv(self._buffer_size).decode()
-
-        if received_data:
-            received_data = json.loads(received_data)
-            if self._verbose:
-                print("Received: " + received_data)
-            return received_data
-        else:
-            if self._verbose:
-                print("Connection was closed from the other side.")
-            self._socket.close()
-            return None
+        return json.loads(received_data) if received_data else None
 
 
 def _test_SmoothieConnector():
@@ -140,37 +105,7 @@ def _test_SmoothieConnector():
     print("Connection closed normally.")
 
 
-def _test_PythonConnectorServer():
-    def writer(data_list: list, locker: Lock):
-        while True:
-            if len(data_list) > 0:
-                locker.acquire()
-                item = data_list.pop(0)
-                locker.release()
-
-                if item == "stop":
-                    print("Stopping writer thread.")
-                    break
-                else:
-                    print(item)
-
-    host = "127.0.0.1"
-    port = 8081
-
-    data_list = list()
-    pcs = PythonConnectorServer(host, port, verbose=True)
-
-    lock = Lock()
-    t1 = Thread(target=pcs.receive, args=(data_list, lock,), name="Th-Connector")
-    t2 = Thread(target=writer, args=(data_list, lock,), name="Th-Writer")
-
-    t1.start()
-    t2.start()
-
-    t1.join()
-    t2.join()
-
-
 if __name__ == "__main__":
-    #_test_PythonConnectorServer()
-    _test_SmoothieConnector()
+    # _test_PythonConnectorServer()
+    # _test_SmoothieConnector()
+    pass
