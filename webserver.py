@@ -22,18 +22,18 @@ def sessions():
 
 
 @socketio.on('command')
-def on_command(json, methods=['GET', 'POST']):
-    s = str('G0 X' + str(json.get('X')) + ' Y' + str(json.get('Y')) + ' F100')
-    print("Got from HTML: " + s)
+def on_command(params, methods=['GET', 'POST']):
+    g_code = str('G0 X' + str(params.get('X')) + ' Y' + str(params.get('Y')) + ' F' + str(params.get('F')))
+    print("Got from HTML: " + g_code)
 
-    if str(json.get('Y')) != 'None' and str(json.get('Y')):
+    if str(params.get('Y')) != 'None' and str(params.get('Y')):
         """
         print("Sending g-code...")
-        response = smc.send_recv(s)
+        response = smc.send_recv(g_code)
         print("Got answer: " + response)
         """
         response = "ok"
-        socketio.emit('response', s + ": " + response)
+        socketio.emit('response', g_code + ": " + response)
 
 
 if __name__ == '__main__':

@@ -59,8 +59,8 @@ socket.on('connect', function() {
         else if (id === "move-backward") {y = -step;}
         // else if (id === "stop") {}
 
-        console.log("Sending", x, y);
-        socket.emit('command', {X : x, Y : y})
+        console.log("Sending: X", x, "Y", y, "F", force);
+        socket.emit('command', {X : x, Y : y, F: force});
     }
 
     let on_left = $('#move-left').on('click', common_handler);
