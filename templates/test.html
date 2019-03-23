@@ -34,8 +34,6 @@
 var socket = io.connect('http://' + document.domain + ':' + location.port);
 
 socket.on('connect', function() {
-	socket.emit('command', {data: 'User Connected'})
-
     var form = $('form').on('submit', function(element) {
 		element.preventDefault()
 		let X = $('input.X').val()
