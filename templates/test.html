@@ -20,14 +20,14 @@
 <script type="text/javascript">
       var socket = io.connect('http://' + document.domain + ':' + location.port);
       socket.on( 'connect', function() {
-        socket.emit( 'my event', {
+        socket.emit( 'command', {
           data: 'User Connected'
         } )
         var form = $( 'form' ).on( 'submit', function( e ) {
           e.preventDefault()
           let X = $( 'input.X' ).val()
           let Y = $( 'input.Y' ).val()
-          socket.emit( 'my event', {
+          socket.emit( 'command', {
             X : X,
             Y : Y
           } )
