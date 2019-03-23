@@ -14,8 +14,8 @@
 <div class="message_holder"></div>
 
 <form id="control" action="" method="POST">
-    <input id="step" type="number" class="X" name="quantity" min="0.1" max="100" step="0.1" value="1" placeholder="Step">
-    <input id="force" type="number" class="Y" name="quantity" min="1" max="100" step="1" value="100" placeholder="Force">
+    <input id="step" type="number" class="X" min="0.1" max="100" step="0.1" value="1" placeholder="Step">
+    <input id="force" type="number" class="Y" min="1" max="100" step="1" value="100" placeholder="Force">
 
     <br><br>
     <button type="button" class="btn btn-default" id="move-left"> < </button>
@@ -33,38 +33,8 @@
 <script type="text/javascript">
 var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-socket.on('connect', function() {
-
-    var on_left = $('#move-left').on('click', function(event){
-        event.preventDefault()
-		let step = document.getElementById("step").value;
-		let force = document.getElementById("force").value;
-        console.log(step, force)
-        console.log(event.target.id)
-    });
-
-    var on_forward = $('#move-forward').on('click', function(element){
-        element.preventDefault()
-        console.log("forward button catched")
-    });
-
-    var on_backward = $('#move-backward').on('click', function(element){
-        element.preventDefault()
-        console.log("backward button catched")
-    });
-
-    var on_right = $('#move-right').on('click', function(element){
-        element.preventDefault()
-        console.log("right button catched")
-    });
-
-    var on_stop = $('#stop').on('click', function(element){
-        element.preventDefault()
-        console.log("stop button catched")
-    });
-
     /*
-    var form = $('form').on('submit', function(element) {
+    let form = $('form').on('submit', function(element) {
 		element.preventDefault()
 		let X = $('input.X').val()
 		let Y = $('input.Y').val()
@@ -72,10 +42,40 @@ socket.on('connect', function() {
 		//$('input.X').val('').focus() // clean value and focus on item
 	})
 	*/
+
+socket.on('connect', function() {
+
+    let common_handler = function(event) {
+        event.preventDefault();
+        let id = event.target.id;
+		let step = Math.abs(document.getElementById("step").value);
+		let force = Math.abs(document.getElementById("force").value);
+        let x = 0;
+        let y = 0;
+
+        if (id === "move-left") {x = -step;}
+        else if (id === "move-right") {x = step;}
+        else if (id === "move-forward") {y = step;}
+        else if (id === "move-backward") {y = -step;}
+        // else if (id === "stop") {}
+
+        console.log("Sending", x, y);
+        socket.emit('command', {X : x, Y : y})
+    }
+
+    let on_left = $('#move-left').on('click', common_handler);
+
+    let on_right = $('#move-right').on('click', common_handler);
+
+    let on_forward = $('#move-forward').on('click', common_handler);
+
+    let on_backward = $('#move-backward').on('click', common_handler);
+
+    // let on_stop = $('#stop').on('click', common_handler);
 })
 
 socket.on('response', function(msg) {
-	console.log(msg)
+	console.log("Got", msg)
 
 	if (typeof msg !== 'undefined') {
 		$('h3').remove()
