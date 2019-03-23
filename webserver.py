@@ -22,7 +22,7 @@ def sessions():
 
 
 @socketio.on('command')
-def handle_my_custom_event(json, methods=['GET', 'POST']):
+def on_command(json, methods=['GET', 'POST']):
     s = str('G0 X' + str(json.get('X')) + ' Y' + str(json.get('Y')) + ' F100')
     print("Got from HTML: " + s)
 
@@ -33,7 +33,7 @@ def handle_my_custom_event(json, methods=['GET', 'POST']):
         print("Got answer: " + response)
         """
         response = "ok"
-        socketio.emit('my response', s + ": " + response)
+        socketio.emit('response', s + ": " + response)
 
 
 if __name__ == '__main__':
