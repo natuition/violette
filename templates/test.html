@@ -14,8 +14,8 @@
 <div class="message_holder"></div>
 
 <form id="control" action="" method="POST">
-    <input type="number" class="X" name="quantity" min="0.1" max="100" step="0.1" placeholder="X">
-    <input type="number" class="Y" name="quantity" min="0.1" max="100" step="0.1" placeholder="Y">
+    <input id="step" type="number" class="X" name="quantity" min="0.1" max="100" step="0.1" value="1" placeholder="Step">
+    <input id="force" type="number" class="Y" name="quantity" min="1" max="100" step="1" value="100" placeholder="Force">
 
     <br><br>
     <button type="button" class="btn btn-default" id="move-left"> < </button>
@@ -34,6 +34,36 @@
 var socket = io.connect('http://' + document.domain + ':' + location.port);
 
 socket.on('connect', function() {
+
+    var on_left = $('#move-left').on('click', function(event){
+        event.preventDefault()
+		let step = document.getElementById("step").value;
+		let force = document.getElementById("force").value;
+        console.log(step, force)
+        console.log(event.target.id)
+    });
+
+    var on_forward = $('#move-forward').on('click', function(element){
+        element.preventDefault()
+        console.log("forward button catched")
+    });
+
+    var on_backward = $('#move-backward').on('click', function(element){
+        element.preventDefault()
+        console.log("backward button catched")
+    });
+
+    var on_right = $('#move-right').on('click', function(element){
+        element.preventDefault()
+        console.log("right button catched")
+    });
+
+    var on_stop = $('#stop').on('click', function(element){
+        element.preventDefault()
+        console.log("stop button catched")
+    });
+
+    /*
     var form = $('form').on('submit', function(element) {
 		element.preventDefault()
 		let X = $('input.X').val()
@@ -41,6 +71,7 @@ socket.on('connect', function() {
 		socket.emit('command', {X : X, Y : Y})
 		//$('input.X').val('').focus() // clean value and focus on item
 	})
+	*/
 })
 
 socket.on('response', function(msg) {
@@ -52,10 +83,6 @@ socket.on('response', function(msg) {
 		$('div.message_holder').append('<div>' + msg + '</div>')
     }
 })
-
-$('#stop').on('click', function(){
-    $.get('/stop');
-});
 </script>
 
 </body>
