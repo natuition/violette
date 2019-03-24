@@ -37,8 +37,8 @@ socket.on('connect', function() {
     let common_handler = function(event) {
         event.preventDefault();
         let id = event.target.id;
-		let step = document.getElementById("step").value;
-		let force = document.getElementById("force").value;
+		let step = Number(document.getElementById("step").value);
+		let force = Number(document.getElementById("force").value);
         let x = 0;
         let y = 0;
 

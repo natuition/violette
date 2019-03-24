@@ -36,14 +36,19 @@ def on_command(params, methods=['GET', 'POST']):
         print(error_msg)
         socketio.emit('response', error_msg)
         return
+
+    x = params["X"]
+    y = params["Y"]
+    f = params["F"]
+
     # check if empty data stored
-    if params["X"] == "None" or params["Y"] == "None" or params["F"] == "None":
+    if x == "None" or y == "None" or f == "None":
         error_msg = "Some keys contain no data, g-code wasn't sent to smoothie."
         print(error_msg)
         socketio.emit('response', error_msg)
         return
     # check for zeros
-    if params["F"] <= 0 or (params["X"] == 0 and params["Y"] == 0):
+    if f <= 0 or (x == 0 and y == 0):
         error_msg = "F <= 0, or X and Y == 0 at once, g-code wasn't sent to smoothie."
         print(error_msg)
         socketio.emit('response', error_msg)
@@ -51,10 +56,6 @@ def on_command(params, methods=['GET', 'POST']):
 
     # here should be values correcting (i.e. if we got X-shift 100 but max is 10 - we have to change x to 10
     # ...
-
-    x = params["X"]
-    y = params["Y"]
-    f = params["F"]
 
     g_code = "G0 X" + str(x) + " Y" + str(y) + " F" + str(f)
     print("Got from HTML: ", params["X"], params["Y"], params["F"])
