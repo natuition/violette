@@ -42,8 +42,8 @@ socket.on('connect', function() {
         let x = 0;
         let y = 0;
 
-        if (step === 0 || force === 0) {
-            console.log("Step and force values can't be zero.");
+        if (step === 0 || force === 0 || step > {{step_max}} || force > {{force_max}}) {
+            alert("Step and force values can't be zero and step, force shouldn't be greater than {{step_max}}, {{force_max}}");
             return;
         }
 
