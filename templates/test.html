@@ -13,6 +13,7 @@
 <h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
 <div class="message_holder"></div>
 
+<br>
 <form id="control" action="" method="POST">
     <input id="step" type="number" class="X" min="0.1" max="100" step="0.1" value="1" placeholder="Step">
     <input id="force" type="number" class="Y" min="1" max="100" step="1" value="100" placeholder="Force">
@@ -23,8 +24,6 @@
     <button type="button" class="btn btn-default" id="move-backward"> v </button>
     <button type="button" class="btn btn-default" id="move-right"> > </button>
     <button type="button" class="btn btn-danger" id="stop">Stop</button>
-
-    <input type="submit"/>
 </form>
 
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -52,6 +51,11 @@ socket.on('connect', function() {
 		let force = Math.abs(document.getElementById("force").value);
         let x = 0;
         let y = 0;
+
+        if (step === 0 || force === 0) {
+            console.log("Step and force values can't be zero.");
+            return;
+        }
 
         if (id === "move-left") {x = -step;}
         else if (id === "move-right") {x = step;}
