@@ -32,16 +32,6 @@
 <script type="text/javascript">
 var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-    /*
-    let form = $('form').on('submit', function(element) {
-		element.preventDefault()
-		let X = $('input.X').val()
-		let Y = $('input.Y').val()
-		socket.emit('command', {X : X, Y : Y})
-		//$('input.X').val('').focus() // clean value and focus on item
-	})
-	*/
-
 socket.on('connect', function() {
 
     let common_handler = function(event) {
@@ -79,7 +69,7 @@ socket.on('connect', function() {
 })
 
 socket.on('response', function(msg) {
-	console.log("Got", msg)
+	console.log("Got response:", msg)
 
 	if (typeof msg !== 'undefined') {
 		$('h3').remove()
