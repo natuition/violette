@@ -4,7 +4,9 @@ from connectors import SmoothieConnector
 
 x_current = 0
 y_current = 0
+x_min = 0
 x_max = 10
+y_min = 0
 y_max = 10
 f_max = 100
 
@@ -48,7 +50,7 @@ def on_command(params, methods=['GET', 'POST']):
         socketio.emit('response', error_msg)
         return
     # check for zeros
-    if f <= 0 or (x == 0 and y == 0):
+    if f <= 0 or (x == 0 and y == 0):  # WHAT IF FLOAT ???
         error_msg = "F <= 0, or X and Y == 0 at once, g-code wasn't sent to smoothie."
         print(error_msg)
         socketio.emit('response', error_msg)
@@ -58,6 +60,7 @@ def on_command(params, methods=['GET', 'POST']):
     # ...
 
     g_code = "G0 X" + str(x) + " Y" + str(y) + " F" + str(f)
+
     print("Got from HTML: ", params["X"], params["Y"], params["F"])
     print("Converted to g-code: " + g_code)
 
