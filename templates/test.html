@@ -26,6 +26,10 @@
     <button type="button" class="btn btn-danger" id="stop">Stop</button>
 </form>
 
+<br>
+<p><a href="http://localhost:8082" target="picam">Press to enable camera stream</a></p>
+<iframe height="50%" width="100%" id="picam" name="picam"></iframe>
+
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
@@ -83,10 +87,6 @@ socket.on('response', function(msg) {
     }
 })
 </script>
-
-<br>
-<iframe height="500px" width="100%" id="picam" name="picam"></iframe>
-<p><a href="127.0.0.1:8082" target="picam">Enable camera stream</a></p>
 
 </body>
 </html>

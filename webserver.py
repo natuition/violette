@@ -75,4 +75,6 @@ def on_command(params, methods=['GET', 'POST']):
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host=web_host, port=web_port)
+    print("Disconnecting from smoothie...")
     smc.disconnect()
+    print("Done.")
