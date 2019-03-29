@@ -11,9 +11,9 @@ y_max = 10
 f_max = 100
 
 sm_host = "192.168.1.222"
-web_host = "192.168.8.101"
-# web_host = "127.0.0.1"
 web_port = 8080
+web_host = "192.168.8.101"
+#web_host = "127.0.0.1"
 
 smc = SmoothieConnector(sm_host, True)
 smc.connect()
@@ -66,6 +66,7 @@ def on_command(params, methods=['GET', 'POST']):
 
     print("Sending g-code...")
     response = smc.send_recv(g_code)
+    #response = "ok (working in without smoothie connection mode)"
     print("Got answer: " + response)
 
     # response = "ok"
