@@ -27,7 +27,7 @@ socketio = SocketIO(app)
 
 @app.route('/')
 def sessions():
-    return render_template('test.html', step_max=x_max, force_max=f_max)
+    return render_template('interface.html', step_max=x_max, force_max=f_max)
 
 
 @socketio.on('command')
