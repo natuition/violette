@@ -5,30 +5,84 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Pluto the Robot</title>
+    <title>Manual control interface</title>
+    <link rel="stylesheet" href="styles/styles.css">
     <!-- <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script> -->
 </head>
 
 <body>
-<h3 style='color: #ccc;font-size: 30px;'>No message yet..</h3>
+<h3 style="color: #ccc; font-size: 30px;">No messages yet..</h3>
 <div class="message_holder"></div>
 
 <br>
-<form id="control" action="" method="POST">
-    <input id="step" type="number" class="X" min="0.1" max="100" step="0.1" value="1" placeholder="Step">
-    <input id="force" type="number" class="Y" min="1" max="100" step="1" value="100" placeholder="Force">
+<div class="arrows">
+    <button type="button" id="move-left">
+        <div class="arrow-left arrow"></div>
+    </button>
+    <div class="up-down-arrows arrow">
+        <button type="button" id="move-forward">
+            <div class="arrow-forward arrow"></div>
+        </button>
+        <button type="button" id="move-backward">
+            <div class="arrow-backward arrow"></div>
+        </button>
+    </div>
+    <button type="button" id="move-right">
+        <div class="arrow-right arrow"></div>
+    </button>
 
-    <br><br>
-    <button type="button" class="btn btn-default" id="move-left"> < </button>
-    <button type="button" class="btn btn-default" id="move-forward"> ^ </button>
-    <button type="button" class="btn btn-default" id="move-backward"> v </button>
-    <button type="button" class="btn btn-default" id="move-right"> > </button>
-    <button type="button" class="btn btn-danger" id="stop">Stop</button>
-</form>
+    <div style="margin:20px;"></div>
+
+    <div class="up-down-arrows arrow">
+        <button type="button" id="move-up">
+            <div class="arrow-forward arrow"></div>
+        </button>
+        <button type="button" id="move-down">
+            <div class="arrow-backward arrow"></div>
+        </button>
+    </div>
+
+    <div style="margin:20px;"></div>
+
+    <button type="button" id="body-left">
+        <div class="arrow-left arrow"></div>
+    </button>
+    <div class="up-down-arrows arrow">
+        <button type="button" id="body-forward">
+            <div class="arrow-forward arrow"></div>
+        </button>
+        <button type="button" id="body-backward">
+            <div class="arrow-backward arrow"></div>
+        </button>
+    </div>
+    <button type="button" id="body-right">
+        <div class="arrow-right arrow"></div>
+    </button>
+</div>
+
+<div id="slidecontainer">
+    <p><input id="step-xy" class="slider-color" type="range" min="1" max="78" value="20"></p>
+    <p><input id="force-xy" class="slider-color" type="range" min="1" max="78" value="20"></p>
+
+    <span>Step value:</span> <span id="step-value" style="font-weight:bold; color:green"></span>
+    <span>Force value:</span> <span id="force-value" style="font-weight:bold; color:green"></span>
+
+    <script>
+    	let step_xy = document.getElementById("step-xy");
+    	let force_xy = document.getElementById("force-xy");
+    	let step_value = document.getElementById("step-value");
+    	let force_value = document.getElementById("force-value");
+    	step_value.innerHTML = step_xy.value;
+    	force_value.innerHTML = force_xy.value;
+
+    	step_xy.oninput = function () {step_value.innerHTML = this.value;}
+    	force_xy.oninput = function () {force_value.innerHTML = this.value;}
+    </script>
+</div>
 
 <br>
-<p><a href="http://localhost:8082" target="picam">Press to enable camera stream</a></p>
-<iframe height="50%" width="100%" id="picam" name="picam"></iframe>
+<p><a href="http://localhost:8082" target="pi-cam">Press to enable camera stream</a></p>
+<iframe height="50%" width="50%" id="pi-cam" name="picam"></iframe>
 
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -41,8 +95,8 @@ socket.on('connect', function() {
     let common_handler = function(event) {
         event.preventDefault();
         let id = event.target.id;
-		let step = Number(document.getElementById("step").value);
-		let force = Number(document.getElementById("force").value);
+		let step = Number(document.getElementById("step-xy").value);
+		let force = Number(document.getElementById("force-xy").value);
         let x = 0;
         let y = 0;
 
