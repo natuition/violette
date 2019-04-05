@@ -23,9 +23,9 @@ force_z.oninput = function () {force_z_value.innerHTML = this.value;}
 let socket = io.connect('http://' + document.domain + ':' + location.port);
 
 socket.on('connect', function() {
-    let get_page_data = function() {
-        let step = Number(document.getElementById("step-xy").value);
-		let force = Number(document.getElementById("force-xy").value);
+    let get_page_data = function(step_axis, force_axis) {
+        let step = Number(document.getElementById(step_axis).value);
+		let force = Number(document.getElementById(force_axis).value);
 		return {S: step, F: force}
     }
 
@@ -37,32 +37,46 @@ socket.on('connect', function() {
     // x left -s
     let on_x_left_btn = function(event) {
         event.preventDefault();
-        data = get_page_data();
+        data = get_page_data("step-xy", "force-xy");
         send_values({X: -data["S"], F: data["F"]});
     }
-    // x right s
+    // x right +s
     let on_x_right_btn = function(event) {
         event.preventDefault();
-        data = get_page_data();
+        data = get_page_data("step-xy", "force-xy");
         send_values({X: data["S"], F: data["F"]});
     }
-    // y forward s
+    // y forward +s
     let on_y_forward_btn = function(event) {
         event.preventDefault();
-        data = get_page_data();
+        data = get_page_data("step-xy", "force-xy");
         send_values({Y: data["S"], F: data["F"]});
     }
     // y backward -s
     let on_y_backward_btn = function(event) {
         event.preventDefault();
-        data = get_page_data();
+        data = get_page_data("step-xy", "force-xy");
         send_values({Y: -data["S"], F: data["F"]});
+    }
+    // z up +s
+    let on_z_up_btn = function(event) {
+        event.preventDefault();
+        data = get_page_data("step-z", "force-z");
+        send_values({Z: data["S"], F: data["F"]});
+    }
+    // z down -s
+    let on_z_down_btn = function(event) {
+        event.preventDefault();
+        data = get_page_data("step-z", "force-z");
+        send_values({Z: -data["S"], F: data["F"]});
     }
 
     let on_left = $('#move-left').on('click', on_x_left_btn);
     let on_right = $('#move-right').on('click', on_x_right_btn);
     let on_forward = $('#move-forward').on('click', on_y_forward_btn);
     let on_backward = $('#move-backward').on('click', on_y_backward_btn);
+    let on_up = $('#move-up').on('click', on_z_up_btn);
+    let on_down = $('#move-down').on('click', on_z_down_btn);
     // let on_stop = $('#stop').on('click', on_stop_btn);
 });
 
