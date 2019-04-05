@@ -1,4 +1,4 @@
-// update step/force values on page
+// auto update step and force values on the page
 let step_xy = document.getElementById("step-xy");
 let force_xy = document.getElementById("force-xy");
 let step_value = document.getElementById("step-xy-value");
@@ -10,37 +10,50 @@ step_xy.oninput = function () {step_value.innerHTML = this.value;}
 force_xy.oninput = function () {force_value.innerHTML = this.value;}
 
 // buttons handlers and data sending/receiving
-var socket = io.connect('http://' + document.domain + ':' + location.port);
+let socket = io.connect('http://' + document.domain + ':' + location.port);
 
 socket.on('connect', function() {
-
-    let common_handler = function(event) {
-        event.preventDefault();
-        let id = event.target.id;
-		let step = Number(document.getElementById("step-xy").value);
+    let get_page_data = function() {
+        let step = Number(document.getElementById("step-xy").value);
 		let force = Number(document.getElementById("force-xy").value);
-        let x = 0;
-        let y = 0;
-
-        if (id === "move-left") {x = -step;}
-        else if (id === "move-right") {x = step;}
-        else if (id === "move-forward") {y = step;}
-        else if (id === "move-backward") {y = -step;}
-        // else if (id === "stop") {}
-
-        console.log("Sending: X", x, "Y", y, "F", force);
-        socket.emit('command', {X : x, Y : y, F: force});
+		return {S: step, F: force}
     }
 
-    let on_left = $('#move-left').on('click', common_handler);
+    let send_values = function(values) {
+        console.log("Sending:", JSON.stringify(values));
+        socket.emit('command', values);
+    }
 
-    let on_right = $('#move-right').on('click', common_handler);
+    // x left -s
+    let on_x_left_btn = function(event) {
+        event.preventDefault();
+        data = get_page_data();
+        send_values({X: -data["S"], data["F"]});
+    }
+    // x right s
+    let on_x_right_btn = function(event) {
+        event.preventDefault();
+        data = get_page_data();
+        send_values({X: data["S"], data["F"]});
+    }
+    // y forward s
+    let on_y_forward_btn = function(event) {
+        event.preventDefault();
+        data = get_page_data();
+        send_values({Y: data["S"], data["F"]});
+    }
+    // y backward -s
+    let on_y_backward_btn = function(event) {
+        event.preventDefault();
+        data = get_page_data();
+        send_values({Y: -data["S"], data["F"]});
+    }
 
-    let on_forward = $('#move-forward').on('click', common_handler);
-
-    let on_backward = $('#move-backward').on('click', common_handler);
-
-    // let on_stop = $('#stop').on('click', common_handler);
+    let on_left = $('#move-left').on('click', on_x_left_btn);
+    let on_right = $('#move-right').on('click', on_x_right_btn);
+    let on_forward = $('#move-forward').on('click', on_y_forward_btn);
+    let on_backward = $('#move-backward').on('click', on_y_backward_btn);
+    // let on_stop = $('#stop').on('click', on_stop_btn);
 });
 
 socket.on('response', function(msg) {
