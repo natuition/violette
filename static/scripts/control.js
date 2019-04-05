@@ -1,13 +1,23 @@
 // auto update step and force values on the page
 let step_xy = document.getElementById("step-xy");
 let force_xy = document.getElementById("force-xy");
-let step_value = document.getElementById("step-xy-value");
-let force_value = document.getElementById("force-xy-value");
-step_value.innerHTML = step_xy.value;
-force_value.innerHTML = force_xy.value;
+let step_z = document.getElementById("step-z");
+let force_z = document.getElementById("force-z");
 
-step_xy.oninput = function () {step_value.innerHTML = this.value;}
-force_xy.oninput = function () {force_value.innerHTML = this.value;}
+let step_xy_value = document.getElementById("step-xy-value");
+let force_xy_value = document.getElementById("force-xy-value");
+let step_z_value = document.getElementById("step-z-value");
+let force_z_value = document.getElementById("force-z-value");
+
+step_xy_value.innerHTML = step_xy.value;
+force_xy_value.innerHTML = force_xy.value;
+step_z_value.innerHTML = step_z.value;
+force_z_value.innerHTML = force_z.value;
+
+step_xy.oninput = function () {step_xy_value.innerHTML = this.value;}
+force_xy.oninput = function () {force_xy_value.innerHTML = this.value;}
+step_z.oninput = function () {step_z_value.innerHTML = this.value;}
+force_z.oninput = function () {force_z_value.innerHTML = this.value;}
 
 // buttons handlers and data sending/receiving
 let socket = io.connect('http://' + document.domain + ':' + location.port);
