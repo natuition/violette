@@ -14,11 +14,11 @@ F_MAX = 100
 
 sm_host = "192.168.1.222"
 web_port = 8080
-web_host = "192.168.8.101"
-#web_host = "127.0.0.1"
+#web_host = "192.168.8.101"
+web_host = "127.0.0.1"
 
-smc = SmoothieConnector(sm_host, True)
-smc.connect()
+#smc = SmoothieConnector(sm_host, True)
+#smc.connect()
 
 # SET HERE SMOOTHIE STARTING POSITION MANUALLY IF NEEDED
 
@@ -70,8 +70,8 @@ def on_command(params, methods=['GET', 'POST']):
     print("Converted to g-code: " + g_code)
 
     print("Sending g-code...")
-    response = smc.send_recv(g_code)
-    #response = "ok (working in without smoothie connection mode)"
+    #response = smc.send_recv(g_code)
+    response = "ok (working in without smoothie connection mode)"
     print("Got answer: " + response)
 
     socketio.emit('response', g_code + ": " + response)
@@ -80,5 +80,5 @@ def on_command(params, methods=['GET', 'POST']):
 if __name__ == '__main__':
     socketio.run(app, debug=True, host=web_host, port=web_port)
     print("Disconnecting from smoothie...")
-    smc.disconnect()
+    #smc.disconnect()
     print("Done.")
