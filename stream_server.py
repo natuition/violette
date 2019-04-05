@@ -45,13 +45,13 @@ class StreamingHttpHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/':
             self.send_response(301)
-            self.send_header('Location', '/index.html')
+            self.send_header('Location', '/templates/stream_server/stream.html')
             self.end_headers()
             return
         elif self.path == '/jsmpg.js':
             content_type = 'application/javascript'
             content = self.server.jsmpg_content
-        elif self.path == '/index.html':
+        elif self.path == '/templates/stream_server/stream.html':
             content_type = 'text/html; charset=utf-8'
             tpl = Template(self.server.index_template)
             content = tpl.safe_substitute(dict(
@@ -74,9 +74,9 @@ class StreamingHttpServer(HTTPServer):
     def __init__(self):
         super(StreamingHttpServer, self).__init__(
                 ('', HTTP_PORT), StreamingHttpHandler)
-        with io.open('index.html', 'r') as f:
+        with io.open('templates/stream_server/stream.html', 'r') as f:
             self.index_template = f.read()
-        with io.open('jsmpg.js', 'r') as f:
+        with io.open('templates/stream_server/scripts/jsmpg.js', 'r') as f:
             self.jsmpg_content = f.read()
 
 
