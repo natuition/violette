@@ -1,8 +1,8 @@
 // update step/force values on page
 let step_xy = document.getElementById("step-xy");
 let force_xy = document.getElementById("force-xy");
-let step_value = document.getElementById("step-value");
-let force_value = document.getElementById("force-value");
+let step_value = document.getElementById("step-xy-value");
+let force_value = document.getElementById("force-xy-value");
 step_value.innerHTML = step_xy.value;
 force_value.innerHTML = force_xy.value;
 

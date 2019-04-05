@@ -2,13 +2,15 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO
 from connectors import SmoothieConnector
 
-x_current = 0
-y_current = 0
-x_min = 0
-x_max = 10
-y_min = 0
-y_max = 10
-f_max = 100
+# corkscrew moving limitations
+# DO NOT CHANGE!
+X_MIN = 0
+X_MAX = 198
+Y_MIN = 0
+Y_MAX = 79
+Z_MIN = 0
+Z_MAX = 52
+F_MAX = 100
 
 sm_host = "192.168.1.222"
 web_port = 8080
@@ -20,6 +22,9 @@ smc.connect()
 
 # SET HERE SMOOTHIE STARTING POSITION MANUALLY IF NEEDED
 
+x_current = 0
+y_current = 0
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
 socketio = SocketIO(app)
@@ -27,7 +32,7 @@ socketio = SocketIO(app)
 
 @app.route('/')
 def sessions():
-    return render_template('interface.html', step_max=x_max, force_max=f_max)
+    return render_template('interface.html')
 
 
 @socketio.on('command')
