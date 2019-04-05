@@ -20,7 +20,7 @@ socket.on('connect', function() {
     }
 
     let send_values = function(values) {
-        console.log("Sending:", JSON.stringify(values));
+        console.log("Sending: " + JSON.stringify(values));
         socket.emit('command', values);
     }
 
@@ -28,25 +28,25 @@ socket.on('connect', function() {
     let on_x_left_btn = function(event) {
         event.preventDefault();
         data = get_page_data();
-        send_values({X: -data["S"], data["F"]});
+        send_values({X: -data["S"], F: data["F"]});
     }
     // x right s
     let on_x_right_btn = function(event) {
         event.preventDefault();
         data = get_page_data();
-        send_values({X: data["S"], data["F"]});
+        send_values({X: data["S"], F: data["F"]});
     }
     // y forward s
     let on_y_forward_btn = function(event) {
         event.preventDefault();
         data = get_page_data();
-        send_values({Y: data["S"], data["F"]});
+        send_values({Y: data["S"], F: data["F"]});
     }
     // y backward -s
     let on_y_backward_btn = function(event) {
         event.preventDefault();
         data = get_page_data();
-        send_values({Y: -data["S"], data["F"]});
+        send_values({Y: -data["S"], F: data["F"]});
     }
 
     let on_left = $('#move-left').on('click', on_x_left_btn);
