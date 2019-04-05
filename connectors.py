@@ -25,24 +25,22 @@ class SmoothieConnector:
         self._tn.read_all()
         self._tn.close()
 
-    def send_recv(self, command: str):
-            if not self._allow_comments:
-                command = re.sub("[ ]*;.*", '', command)  # remove everything after ;
-                command = command.strip()  # send only the bare necessity
+    def send(self, command: str):
+        if not self._allow_comments:
+            command = re.sub("[ ]*;.*", '', command)  # remove everything after ;
+            command = command.strip()  # send only the bare necessity
 
-            if len(command) > 0:
-                if self._verbose:
-                    print("Streaming g-code to " + self._host)
+        if len(command) > 0:
+            if self._verbose:
+                print("Streaming g-code to " + self._host)
 
-                self._tn.write(command.encode('ascii') + b"\n")
+            self._tn.write(command.encode('ascii') + b"\n")
 
-                if self._verbose:
-                    print("Sent code: " + command.strip())
+            if self._verbose:
+                print("Sent code: " + command.strip())
 
-                while True:
-                    responce = self._tn.read_some()
-                    if responce.count("ok".encode('ascii')) > 0:
-                        return responce.decode()
+    def receive(self):
+        return self._tn.read_some().decode()
 
 
 class PythonConnectorServer:
@@ -99,8 +97,12 @@ def _test_SmoothieConnector():
     sc = SmoothieConnector(host, verbose=True)
     sc.connect()
     print("Connection established. Sending data.")
-    resp = sc.send_recv(g_code)
-    print("Response: " + resp)
+    sc.send(g_code)
+    while True:
+        resp = sc.receive()
+        if resp.count("ok".encode('ascii')) > 0:
+            print("Response: " + resp)
+            break
     sc.disconnect()
     print("Connection closed normally.")
 

@@ -25,7 +25,12 @@ def main():
 
         if rec_data:
             print("Sending g-code to smoothie: " + rec_data)
-            sm_resp = sc.send_recv(rec_data)
+            sc.send(rec_data)
+            sm_resp = None
+            while True:
+                sm_resp = sc.receive()
+                if sm_resp != ">".encode("ascii"):
+                    break
 
             print("Sending response from smoothie: " + sm_resp)
             pcs.send(sm_resp)

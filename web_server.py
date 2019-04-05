@@ -70,8 +70,15 @@ def on_command(params, methods=['GET', 'POST']):
     print("Converted to g-code: " + g_code)
 
     print("Sending g-code...")
-    #response = smc.send_recv(g_code)
-    response = "ok (working in without smoothie connection mode)"
+    """
+    smc.send(g_code)
+    response = None
+    while True:
+        response = smc.receive()
+        if response != ">".encode("ascii"):
+            break
+    """
+    response = "ok (stub message)"
     print("Got answer: " + response)
 
     socketio.emit('response', g_code + ": " + response)
