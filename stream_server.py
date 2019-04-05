@@ -74,9 +74,9 @@ class StreamingHttpServer(HTTPServer):
     def __init__(self):
         super(StreamingHttpServer, self).__init__(
                 ('', HTTP_PORT), StreamingHttpHandler)
-        with io.open('templates/stream_server/stream.html', 'r') as f:
+        with io.open('templates/stream.html', 'r') as f:
             self.index_template = f.read()
-        with io.open('templates/stream_server/scripts/jsmpg.js', 'r') as f:
+        with io.open('static/scripts/jsmpg.js', 'r') as f:
             self.jsmpg_content = f.read()
 
 

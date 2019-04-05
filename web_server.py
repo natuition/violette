@@ -74,7 +74,6 @@ def on_command(params, methods=['GET', 'POST']):
     #response = "ok (working in without smoothie connection mode)"
     print("Got answer: " + response)
 
-    # response = "ok"
     socketio.emit('response', g_code + ": " + response)
 
 
