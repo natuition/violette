@@ -46,7 +46,7 @@ def send_response(msg):
 
 def cur_coords_str():
     global x_current, y_current, z_current
-    return "current coordinates: X: {0}, Y: {1}, Z: {2}, ".format(x_current.value, y_current.value, z_current.value)
+    return "current coordinates: X: {0}, Y: {1}, Z: {2}".format(x_current.value, y_current.value, z_current.value)
 
 
 @app.route('/')
@@ -65,12 +65,14 @@ def on_command(params, methods=['GET', 'POST']):
             send_response("X key is present but value is None, " + NOT_SENT_MSG)
             return
         if x_current.value + x >= X_MAX:
-            send_response("Corkscrew will go beyond the right border (X_MAX), " + cur_coords_str() + NOT_SENT_MSG)
+            send_response("Corkscrew will go beyond the right border (X_MAX), " + cur_coords_str() + ", " + NOT_SENT_MSG)
             return
         if x_current.value + x <= X_MIN:
-            send_response("Corkscrew will go beyond the left border (X_MIN), " + cur_coords_str() + NOT_SENT_MSG)
+            send_response("Corkscrew will go beyond the left border (X_MIN), " + cur_coords_str() + ", " + NOT_SENT_MSG)
             return
-        x_current.value += x
+
+        with x_current.get_lock():
+            x_current.value += x
         g_code += "X" + str(x) + " "
 
     # check and add Y key (y axis)
@@ -80,12 +82,14 @@ def on_command(params, methods=['GET', 'POST']):
             send_response("Y key is present but value is None, " + NOT_SENT_MSG)
             return
         if y_current.value + y >= Y_MAX:
-            send_response("Corkscrew will go beyond the front border (Y_MAX), " + cur_coords_str() + NOT_SENT_MSG)
+            send_response("Corkscrew will go beyond the front border (Y_MAX), " + cur_coords_str() + ", " + NOT_SENT_MSG)
             return
         if y_current.value + y <= Y_MIN:
-            send_response("Corkscrew will go beyond the back border (Y_MIN), " + cur_coords_str() + NOT_SENT_MSG)
+            send_response("Corkscrew will go beyond the back border (Y_MIN), " + cur_coords_str() + ", " + NOT_SENT_MSG)
             return
-        y_current.value += y
+
+        with y_current.get_lock():
+            y_current.value += y
         g_code += "Y" + str(y) + " "
 
     # check and add Z key (z axis)
@@ -95,12 +99,14 @@ def on_command(params, methods=['GET', 'POST']):
             send_response("Z key is present but value is None, " + NOT_SENT_MSG)
             return
         if z_current.value + z >= Z_MAX:
-            send_response("Corkscrew will go beyond the upper border (Z_MAX), " + cur_coords_str() + NOT_SENT_MSG)
+            send_response("Corkscrew will go beyond the upper border (Z_MAX), " + cur_coords_str() + ", " + NOT_SENT_MSG)
             return
         if z_current.value + z <= Z_MIN:
-            send_response("Corkscrew will go beyond the down border (Z_MIN), " + cur_coords_str() + NOT_SENT_MSG)
+            send_response("Corkscrew will go beyond the down border (Z_MIN), " + cur_coords_str() + ", " + NOT_SENT_MSG)
             return
-        z_current.value += z
+
+        with z_current.get_lock():
+            z_current.value += z
         g_code += "Z" + str(z) + " "
 
     # check and add F key (force)
@@ -126,7 +132,7 @@ def on_command(params, methods=['GET', 'POST']):
     response = "ok (USING STUB INSTEAD OF SMOOTHIE CONNECTION)"  # COMMENT IF USING SMOOTHIE
 
     """
-    # uncomment that block if you using smoothie
+    # UNCOMMENT THAT BLOCK IF YOU USING SMOOTHIE
     smc.send(g_code)
     response = None
     while True:
