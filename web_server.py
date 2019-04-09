@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 from connectors import SmoothieConnector
+from multiprocessing import Value
 
 # constants
 # DO NOT CHANGE MIN AND MAX LIMITATIONS!
@@ -16,19 +17,22 @@ NOT_SENT_MSG = "g-code wasn't sent to smoothie."
 
 sm_host = "192.168.1.222"
 web_port = 8080
-#web_host = "192.168.8.101"
-web_host = "127.0.0.1"
+#web_host = "192.168.8.101"  # for testing using smoothie
+web_host = "127.0.0.1"  # for local testing
 
-#smc = SmoothieConnector(sm_host, True)
-#print("Connecting to smoothie...")
-#smc.connect()
+"""
+# UNCOMMENT THIS SECTION IF USING SMOOTHIE
+smc = SmoothieConnector(sm_host, True)
+print("Connecting to smoothie...")
+smc.connect()
+"""
 
-# TO DO: MOVE CORKSCREW TO STARTING POSITION
+# TO DO: MOVE CORKSCREW TO STARTING POSITION ON SERVER UP
 #
 
-x_current = 0
-y_current = 0
-z_current = 0
+x_current = Value('i', 0)
+y_current = Value('i', 0)
+z_current = Value('i', 0)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
@@ -42,7 +46,7 @@ def send_response(msg):
 
 def cur_coords_str():
     global x_current, y_current, z_current
-    return "current coordinates: X: {0}, Y: {1}, Z: {2}, ".format(x_current, y_current, z_current)
+    return "current coordinates: X: {0}, Y: {1}, Z: {2}, ".format(x_current.value, y_current.value, z_current.value)
 
 
 @app.route('/')
@@ -60,13 +64,13 @@ def on_command(params, methods=['GET', 'POST']):
         if x is None or x == "None":
             send_response("X key is present but value is None, " + NOT_SENT_MSG)
             return
-        if x_current + x >= X_MAX:
+        if x_current.value + x >= X_MAX:
             send_response("Corkscrew will go beyond the right border (X_MAX), " + cur_coords_str() + NOT_SENT_MSG)
             return
-        if x_current + x <= X_MIN:
+        if x_current.value + x <= X_MIN:
             send_response("Corkscrew will go beyond the left border (X_MIN), " + cur_coords_str() + NOT_SENT_MSG)
             return
-        x_current += x
+        x_current.value += x
         g_code += "X" + str(x) + " "
 
     # check and add Y key (y axis)
@@ -75,13 +79,13 @@ def on_command(params, methods=['GET', 'POST']):
         if y is None or y == "None":
             send_response("Y key is present but value is None, " + NOT_SENT_MSG)
             return
-        if y_current + y >= Y_MAX:
+        if y_current.value + y >= Y_MAX:
             send_response("Corkscrew will go beyond the front border (Y_MAX), " + cur_coords_str() + NOT_SENT_MSG)
             return
-        if y_current + y <= Y_MIN:
+        if y_current.value + y <= Y_MIN:
             send_response("Corkscrew will go beyond the back border (Y_MIN), " + cur_coords_str() + NOT_SENT_MSG)
             return
-        y_current += y
+        y_current.value += y
         g_code += "Y" + str(y) + " "
 
     # check and add Z key (z axis)
@@ -90,13 +94,13 @@ def on_command(params, methods=['GET', 'POST']):
         if z is None or z == "None":
             send_response("Z key is present but value is None, " + NOT_SENT_MSG)
             return
-        if z_current + z >= Z_MAX:
+        if z_current.value + z >= Z_MAX:
             send_response("Corkscrew will go beyond the upper border (Z_MAX), " + cur_coords_str() + NOT_SENT_MSG)
             return
-        if z_current + z <= Z_MIN:
-            send_response("Corkscrew will go beyond the down border (Y_MIN), " + cur_coords_str() + NOT_SENT_MSG)
+        if z_current.value + z <= Z_MIN:
+            send_response("Corkscrew will go beyond the down border (Z_MIN), " + cur_coords_str() + NOT_SENT_MSG)
             return
-        z_current += z
+        z_current.value += z
         g_code += "Z" + str(z) + " "
 
     # check and add F key (force)
@@ -119,7 +123,7 @@ def on_command(params, methods=['GET', 'POST']):
     print("Converted to g-code: " + g_code + ", sending...")
 
     # stub for testing without smoothie
-    response = "ok (USING STUB INSTEAD OF SMOOTHIE CONNECTION)"
+    response = "ok (USING STUB INSTEAD OF SMOOTHIE CONNECTION)"  # COMMENT IF USING SMOOTHIE
 
     """
     # uncomment that block if you using smoothie
@@ -131,12 +135,12 @@ def on_command(params, methods=['GET', 'POST']):
             break
     """
 
-    print("Got answer: " + response)
-    socketio.emit('response', g_code + ": " + response)
+    print("Got answer: " + response + ", " + cur_coords_str())
+    socketio.emit('response', g_code + ": " + response + ", " + cur_coords_str())
 
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host=web_host, port=web_port)
     print("Disconnecting from smoothie...")
-    #smc.disconnect()
+    #smc.disconnect()  # UNCOMMENT IF USING SMOOTHIE
     print("Done.")
