@@ -17,7 +17,7 @@ NOT_SENT_MSG = "g-code wasn't sent to smoothie."
 
 sm_host = "192.168.1.222"
 web_port = 8080
-#web_host = "192.168.8.101"  # for testing using smoothie
+#web_host = "192.168.8.100"  # for testing using smoothie
 web_host = "127.0.0.1"  # for local testing
 
 """
@@ -25,10 +25,21 @@ web_host = "127.0.0.1"  # for local testing
 smc = SmoothieConnector(sm_host, True)
 print("Connecting to smoothie...")
 smc.connect()
+smc.send("G91")
+while True:
+    response = smc.receive()
+    if response != ">".encode("ascii"):
+        break
+'''
+X-1000
+(wait until halt)
+G999
+Y1000
+(wait until halt)
+G999
+G92 X0 Y y_max
+'''
 """
-
-# TO DO: MOVE CORKSCREW TO STARTING POSITION ON SERVER UP
-#
 
 x_current = Value('i', 0)
 y_current = Value('i', 0)
