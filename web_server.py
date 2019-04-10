@@ -17,8 +17,8 @@ NOT_SENT_MSG = "g-code wasn't sent to smoothie."
 
 SMOOTHIE_HOST = "192.168.1.222"
 WEB_SERV_PORT = 8080
-WEB_SERV_HOST = "192.168.8.100"  # for testing using smoothie
-#WEB_SERV_HOST = "127.0.0.1"  # for local testing
+#WEB_SERV_HOST = "192.168.8.100"  # for testing using smoothie
+WEB_SERV_HOST = "127.0.0.1"  # for local testing
 
 x_current = Value('i', 0)
 y_current = Value('i', 0)
@@ -92,7 +92,7 @@ def send_response(msg):
 
 
 def cur_coords_str():
-    return "current coordinates: X: {0}, Y: {1}, Z: {2}".format(x_current.value, y_current.value, z_current.value)
+    return "current coordinates: X={0} Y={1} Z={2}".format(x_current.value, y_current.value, z_current.value)
 
 
 @app.route('/')
@@ -175,36 +175,41 @@ def on_command(params, methods=['GET', 'POST']):
     print("Converted to g-code: " + g_code + ", sending...")
 
     # stub for testing without real smoothie connection
-    #response = "ok (USING STUB INSTEAD OF SMOOTHIE CONNECTION)"  # COMMENT IF USING SMOOTHIE
+    response = "ok (USING STUB INSTEAD OF SMOOTHIE CONNECTION)"  # COMMENT IF USING SMOOTHIE
 
     # UNCOMMENT THAT BLOCK IF YOU USING SMOOTHIE
-    #"""
+    """
     smc.send(g_code)
     while True:
         response = smc.receive()
         if response != ">":
             break
-    #"""
+    """
 
     send_response(g_code + ": " + response + ", " + cur_coords_str())
 
 
 def main():
+    # UNCOMMENT THIS BLOCK
+    '''
     print("Connecting to smoothie...")
     smc.connect()
     switch_to_relative()
+    '''
 
-    # KEEP THIS BLOCKS COMMENTED IF STOPPERS ARE NOT INSTALLED AND ENABLED, OR ENGINES MAY CRASH!
+    # UNCOMMENT THIS BLOCK ONLY (!) IF STOPPERS ARE INSTALLED AND ENABLED, OR ENGINES MAY CRASH!
     '''
     move_corkscrew_to_start()
     '''
 
     socket_io.run(app, debug=True, host=WEB_SERV_HOST, port=WEB_SERV_PORT)
 
+    # UNCOMMENT THIS BLOCK IF USING SMOOTHIE
+    '''
     print("Disconnecting from smoothie...")
-    # UNCOMMENT IF USING SMOOTHIE
     smc.disconnect()
     print("Done.")
+    '''
 
 
 if __name__ == '__main__':
