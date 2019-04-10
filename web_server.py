@@ -17,8 +17,8 @@ NOT_SENT_MSG = "g-code wasn't sent to smoothie."
 
 sm_host = "192.168.1.222"
 web_port = 8080
-#web_host = "192.168.8.100"  # for testing using smoothie
-web_host = "127.0.0.1"  # for local testing
+web_host = "192.168.8.100"  # for testing using smoothie
+#web_host = "127.0.0.1"  # for local testing
 
 x_current = Value('i', 0)
 y_current = Value('i', 0)
@@ -42,7 +42,7 @@ while True:
 
 
 # KEEP THIS BLOCKS COMMENTED IF STOPPERS ARE NOT INSTALLED AND ENABLED, OR ENGINES MAY CRASH!
-#"""
+"""
 # move to X axis stopper
 print("Moving to X axis stopper...")
 smc.send("G0 X-1000 F100")
@@ -67,8 +67,8 @@ while True:
 # halt state needs M999 command to keep working
 smc.send("M999")
 
-# separate block for Z axis
-#'''
+# separate block for Z axis while we havent stopper (just in case)
+'''
 # move to Z axis stopper (HOPING THAT STOPPER INSTALLET ON THE "TOP" OF AXIS WHERE'S Z_MAX VALUE)
 print("Moving to Z axis stopper...")
 smc.send("G0 Z1000 F100")
@@ -84,12 +84,12 @@ smc.send("M999")
 # set Z axis current coordinates
 z_current = Value('i', Z_MAX)
 smc.send("G92 Z{0}".format(z_current.value))
-#'''
+'''
 
 x_current = Value('i', X_MIN)
 y_current = Value('i', Y_MAX)
 smc.send("G92 X{0} Y{1}".format(x_current.value, y_current.value))
-#"""
+"""
 
 
 app = Flask(__name__)
@@ -191,17 +191,16 @@ def on_command(params, methods=['GET', 'POST']):
     print("Converted to g-code: " + g_code + ", sending...")
 
     # stub for testing without real smoothie connection
-    response = "ok (USING STUB INSTEAD OF SMOOTHIE CONNECTION)"  # COMMENT IF USING SMOOTHIE
+    #response = "ok (USING STUB INSTEAD OF SMOOTHIE CONNECTION)"  # COMMENT IF USING SMOOTHIE
 
     # UNCOMMENT THAT BLOCK IF YOU USING SMOOTHIE
-    """
+    #"""
     smc.send(g_code)
-    response = None
     while True:
         response = smc.receive()
         if response != ">":
             break
-    """
+    #"""
 
     print("Got answer: " + response + ", " + cur_coords_str())
     socketio.emit('response', g_code + ": " + response + ", " + cur_coords_str())
@@ -212,6 +211,6 @@ if __name__ == '__main__':
     print("Disconnecting from smoothie...")
 
     # UNCOMMENT IF USING SMOOTHIE
-    #smc.disconnect()
+    smc.disconnect()
 
     print("Done.")
