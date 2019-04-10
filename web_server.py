@@ -3,7 +3,7 @@ from flask_socketio import SocketIO
 from connectors import SmoothieConnector
 from multiprocessing import Value
 
-# constants
+# global constants
 # DO NOT CHANGE MIN AND MAX LIMITATIONS!
 X_MIN = 0
 X_MAX = 198
@@ -20,34 +20,85 @@ web_port = 8080
 #web_host = "192.168.8.100"  # for testing using smoothie
 web_host = "127.0.0.1"  # for local testing
 
-"""
-# UNCOMMENT THIS SECTION IF USING SMOOTHIE
-smc = SmoothieConnector(sm_host, True)
-print("Connecting to smoothie...")
-smc.connect()
-smc.send("G91")
-while True:
-    response = smc.receive()
-    if response != ">".encode("ascii"):
-        break
-'''
-X-1000
-(wait until halt)
-G999
-Y1000
-(wait until halt)
-G999
-G92 X0 Y y_max
-'''
-"""
-
 x_current = Value('i', 0)
 y_current = Value('i', 0)
 z_current = Value('i', 0)
 
+# UNCOMMENT THIS SECTION IF USING SMOOTHIE
+#"""
+print("Connecting to smoothie...")
+smc = SmoothieConnector(sm_host, True)
+smc.connect()
+
+# switch smoothie to relative coords mode
+print("Switching to relative mode...")
+smc.send("G91")
+while True:
+    response = smc.receive()
+    if response != ">":
+        print(response)
+        break
+#"""
+
+
+# KEEP THIS BLOCKS COMMENTED IF STOPPERS ARE NOT INSTALLED AND ENABLED, OR ENGINES MAY CRASH!
+#"""
+# move to X axis stopper
+print("Moving to X axis stopper...")
+smc.send("G0 X-1000 F100")
+# wait until stopper hit
+while True:
+    response = smc.receive()
+    if response.count("M999") > 0:
+        print("X axis stopper hit")
+        break
+# halt state needs M999 command to keep working
+smc.send("M999")
+
+# move to Y axis stopper
+print("Moving to Y axis stopper...")
+smc.send("G0 Y1000 F100")
+# wait until stopper hit
+while True:
+    response = smc.receive()
+    if response.count("M999") > 0:
+        print("Y axis stopper hit")
+        break
+# halt state needs M999 command to keep working
+smc.send("M999")
+
+# separate block for Z axis
+#'''
+# move to Z axis stopper (HOPING THAT STOPPER INSTALLET ON THE "TOP" OF AXIS WHERE'S Z_MAX VALUE)
+print("Moving to Z axis stopper...")
+smc.send("G0 Z1000 F100")
+# wait until stopper hit
+while True:
+    response = smc.receive()
+    if response.count("M999") > 0:
+        print("Z axis stopper hit")
+        break
+# halt state needs M999 command to keep working
+smc.send("M999")
+
+# set Z axis current coordinates
+z_current = Value('i', Z_MAX)
+smc.send("G92 Z{0}".format(z_current.value))
+#'''
+
+x_current = Value('i', X_MIN)
+y_current = Value('i', Y_MAX)
+smc.send("G92 X{0} Y{1}".format(x_current.value, y_current.value))
+#"""
+
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
 socketio = SocketIO(app)
+
+
+def set_home(smc: SmoothieConnector):
+    pass
 
 
 def send_response(msg):
@@ -139,16 +190,16 @@ def on_command(params, methods=['GET', 'POST']):
 
     print("Converted to g-code: " + g_code + ", sending...")
 
-    # stub for testing without smoothie
+    # stub for testing without real smoothie connection
     response = "ok (USING STUB INSTEAD OF SMOOTHIE CONNECTION)"  # COMMENT IF USING SMOOTHIE
 
-    """
     # UNCOMMENT THAT BLOCK IF YOU USING SMOOTHIE
+    """
     smc.send(g_code)
     response = None
     while True:
         response = smc.receive()
-        if response != ">".encode("ascii"):
+        if response != ">":
             break
     """
 
@@ -159,5 +210,8 @@ def on_command(params, methods=['GET', 'POST']):
 if __name__ == '__main__':
     socketio.run(app, debug=True, host=web_host, port=web_port)
     print("Disconnecting from smoothie...")
-    #smc.disconnect()  # UNCOMMENT IF USING SMOOTHIE
+
+    # UNCOMMENT IF USING SMOOTHIE
+    #smc.disconnect()
+
     print("Done.")
