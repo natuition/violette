@@ -95,6 +95,20 @@ def cur_coords_str():
     return "current coordinates: X={0} Y={1} Z={2}".format(x_current.value, y_current.value, z_current.value)
 
 
+def validate_moving_key(params, key_name, key_min, key_max, current_value):
+    """For F current_value must be 0"""
+
+    if params[key_name] is None or params[key_name] == "None":
+        return "{0} key is present but value is None, ".format(key_name) + NOT_SENT_MSG
+    if current_value + params[key_name] >= key_max:
+        return "Command with {0}{1} goes beyond max acceptable range of {0}_MAX = {2}, "\
+                   .format(key_name, params[key_name], key_max) + cur_coords_str() + ", " + NOT_SENT_MSG
+    if current_value + params[key_name] <= key_min:
+        return "Command with {0}{1} goes beyond min acceptable range of {0}_MIN = {2}, " \
+                   .format(key_name, params[key_name], key_min) + cur_coords_str() + ", " + NOT_SENT_MSG
+    return None
+
+
 @app.route('/')
 def sessions():
     return render_template('interface.html')
@@ -106,71 +120,48 @@ def on_command(params, methods=['GET', 'POST']):
 
     # check and add X key (x axis)
     if "X" in params:
-        x = params["X"]
-        if x is None or x == "None":
-            send_response("X key is present but value is None, " + NOT_SENT_MSG)
+        error_msg = validate_moving_key(params, "X", X_MIN, X_MAX, x_current.value)
+        if error_msg is None:
+            x = params["X"]
+            with x_current.get_lock():
+                x_current.value += x
+            g_code += "X" + str(x) + " "
+        else:
+            send_response(error_msg)
             return
-        if x_current.value + x >= X_MAX:
-            send_response("Corkscrew will go beyond the right border (X_MAX), " + cur_coords_str() + ", " + NOT_SENT_MSG)
-            return
-        if x_current.value + x <= X_MIN:
-            send_response("Corkscrew will go beyond the left border (X_MIN), " + cur_coords_str() + ", " + NOT_SENT_MSG)
-            return
-
-        with x_current.get_lock():
-            x_current.value += x
-        g_code += "X" + str(x) + " "
 
     # check and add Y key (y axis)
     if "Y" in params:
-        y = params["Y"]
-        if y is None or y == "None":
-            send_response("Y key is present but value is None, " + NOT_SENT_MSG)
+        error_msg = validate_moving_key(params, "Y", Y_MIN, Y_MAX, y_current.value)
+        if error_msg is None:
+            y = params["Y"]
+            with y_current.get_lock():
+                y_current.value += y
+            g_code += "Y" + str(y) + " "
+        else:
+            send_response(error_msg)
             return
-        if y_current.value + y >= Y_MAX:
-            send_response("Corkscrew will go beyond the front border (Y_MAX), " + cur_coords_str() + ", " + NOT_SENT_MSG)
-            return
-        if y_current.value + y <= Y_MIN:
-            send_response("Corkscrew will go beyond the back border (Y_MIN), " + cur_coords_str() + ", " + NOT_SENT_MSG)
-            return
-
-        with y_current.get_lock():
-            y_current.value += y
-        g_code += "Y" + str(y) + " "
 
     # check and add Z key (z axis)
     if "Z" in params:
-        z = params["Z"]
-        if z is None or z == "None":
-            send_response("Z key is present but value is None, " + NOT_SENT_MSG)
+        error_msg = validate_moving_key(params, "Z", Z_MIN, Z_MAX, z_current.value)
+        if error_msg is None:
+            z = params["Z"]
+            with z_current.get_lock():
+                z_current.value += z
+            g_code += "Z" + str(z) + " "
+        else:
+            send_response(error_msg)
             return
-        if z_current.value + z >= Z_MAX:
-            send_response("Corkscrew will go beyond the upper border (Z_MAX), " + cur_coords_str() + ", " + NOT_SENT_MSG)
-            return
-        if z_current.value + z <= Z_MIN:
-            send_response("Corkscrew will go beyond the down border (Z_MIN), " + cur_coords_str() + ", " + NOT_SENT_MSG)
-            return
-
-        with z_current.get_lock():
-            z_current.value += z
-        g_code += "Z" + str(z) + " "
 
     # check and add F key (force)
     if "F" in params:
-        f = params["F"]
-        if f is None or f == "None":
-            send_response("F key is present but value is None, " + NOT_SENT_MSG)
+        error_msg = validate_moving_key(params, "F", F_MIN, F_MAX, 0)
+        if error_msg is None:
+            g_code += "F" + str(params["F"])
+        else:
+            send_response(error_msg)
             return
-        if f > F_MAX:
-            send_response("Force value is too big ({0} max), ".format(F_MAX) + NOT_SENT_MSG)
-            return
-        if f < F_MIN:
-            send_response("Force value is too low ({0} min), ".format(F_MIN) + NOT_SENT_MSG)
-            return
-        g_code += "F" + str(f)
-    else:
-        send_response("F key is missed, " + NOT_SENT_MSG)
-        return
 
     print("Converted to g-code: " + g_code + ", sending...")
 
