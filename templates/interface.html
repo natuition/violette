@@ -11,82 +11,117 @@
 </head>
 
 <body>
+
+<div class="tab">
+    <button class="tablinks" onclick="on_tab_btn(event, 'Extraction')" id="default-opened-tab">Extraction</button>
+    <button class="tablinks" onclick="on_tab_btn(event, 'Navigation')">Navigation</button>
+</div>
+<div id="Extraction" class="tabcontent">
+    <div class="leftmenu" style="display: block;">
+        <div class="arrows">
+            <button type="button" id="move-left">
+                <div class="arrow-left arrow"></div>
+            </button>
+            <div class="up-down-arrows arrow">
+                <button type="button" id="move-forward">
+                    <div class="arrow-forward arrow"></div>
+                </button>
+                <button type="button" id="startstop">
+                    <div class="startstop"></div>
+                    STARTSTOP
+                </button>
+                <button type="button" id="move-backward">
+                    <div class="arrow-backward arrow"></div>
+                </button>
+            </div>
+            <button type="button" id="move-right">
+                <div class="arrow-right arrow"></div>
+            </button>
+
+            <!-- z control -->
+            <div style="margin:20px;"></div>
+            <div class="up-down-arrows arrow">
+                <button type="button" id="move-up">
+                    <div class="arrow-forward arrow"></div>
+                </button>
+                <button type="button" id="move-down">
+                    <div class="arrow-backward arrow"></div>
+                </button>
+            </div>
+        </div>
+        <div id="slidecontainer">
+            <p>
+                XY Step:
+                <input type="text" id="XYStep" value="1">
+                <br>
+                <span id="step-xy-value" style="font-weight:bold; color:green"></span>
+                <input id="step-xy" class="slider-color" type="range" min="1" max="78" value="1">
+            </p>
+            <p>
+                XY Force:
+                <input type="text" id="XYForce" value="1">
+                <br>
+                <span id="force-xy-value" style="font-weight:bold; color:green"></span>
+                <input id="force-xy" class="slider-color" type="range" min="1" max="100" value="50">
+            </p>
+            <p>
+                Z Step:
+                <input type="text" id="ZStep" value="1">
+                <br>
+                <span id="step-z-value" style="font-weight:bold; color:green"></span>
+                <input id="step-z" class="slider-color" type="range" min="1" max="52" value="1">
+            </p>
+            <p>
+                Z Force:
+                <input type="text" id="ZForce" value="1">
+                <br>
+                <span id="force-z-value" style="font-weight:bold; color:green"></span>
+                <input id="force-z" class="slider-color" type="range" min="1" max="100" value="50">
+            </p>
+        </div>
+    </div>
+    <div class="rightmenu" style="display: block;">
+        <p class="contur">
+            <img src="{{ url_for('static', filename='images/base1.jpg') }}" class="base">
+        </p>
+        <p class="can">
+            <canvas id="canvas" width="613" height="450"></canvas>
+        </p>
+    </div>
+</div>
+
+<div id="Navigation" class="tabcontent">
+    <div class="arrows">
+        <!-- body control -->
+        <div style="margin:20px;"></div>
+        <button type="button" id="body-left">
+            <div class="arrow-left arrow"></div>
+        </button>
+        <div class="up-down-arrows arrow">
+            <button type="button" id="body-forward">
+                <div class="arrow-forward arrow"></div>
+            </button>
+            <button type="button" id="startstop">
+                <div class="startstop"></div>
+                STARTSTOP
+            </button>
+            <button type="button" id="body-backward">
+                <div class="arrow-backward arrow"></div>
+            </button>
+        </div>
+        <button type="button" id="body-right">
+            <div class="arrow-right arrow"></div>
+        </button>
+        <button type="button" id="wheels">
+            <div class="wheels"></div>
+            Allign wheels
+        </button>
+    </div>
+</div>
+<!-- <p><a href="http://127.0.0.1:8082" target="pi-cam">Press to enable camera stream</a></p> -->
+<iframe width="640" height="480" id="pi-cam" name="pi-cam" src="http://192.168.43.243:8082/index.html"></iframe>
 <h3 style="color: #ccc; font-size: 30px;">No response messages yet</h3>
 <div class="message_holder"></div>
-
-<br>
-<div class="arrows">
-    <!-- xy control -->
-    <button type="button" id="move-left">
-        <div class="arrow-left arrow"></div>
-    </button>
-    <div class="up-down-arrows arrow">
-        <button type="button" id="move-forward">
-            <div class="arrow-forward arrow"></div>
-        </button>
-        <button type="button" id="move-backward">
-            <div class="arrow-backward arrow"></div>
-        </button>
-    </div>
-    <button type="button" id="move-right">
-        <div class="arrow-right arrow"></div>
-    </button>
-
-    <!-- z control -->
-    <div style="margin:20px;"></div>
-    <div class="up-down-arrows arrow">
-        <button type="button" id="move-up">
-            <div class="arrow-forward arrow"></div>
-        </button>
-        <button type="button" id="move-down">
-            <div class="arrow-backward arrow"></div>
-        </button>
-    </div>
-
-    <!-- body control -->
-    <div style="margin:20px;"></div>
-    <button type="button" id="body-left">
-        <div class="arrow-left arrow"></div>
-    </button>
-    <div class="up-down-arrows arrow">
-        <button type="button" id="body-forward">
-            <div class="arrow-forward arrow"></div>
-        </button>
-        <button type="button" id="body-backward">
-            <div class="arrow-backward arrow"></div>
-        </button>
-    </div>
-    <button type="button" id="body-right">
-        <div class="arrow-right arrow"></div>
-    </button>
-</div>
-
-<div id="slidecontainer">
-    <p>
-        XY Step:
-        <span id="step-xy-value" style="font-weight:bold; color:green"></span>
-        <input id="step-xy" class="slider-color" type="range" min="1" max="78" value="20">
-    </p>
-    <p>
-        XY Force:
-        <span id="force-xy-value" style="font-weight:bold; color:green"></span>
-        <input id="force-xy" class="slider-color" type="range" min="1" max="100" value="50">
-    </p>
-    <p>
-        Z Step:
-        <span id="step-z-value" style="font-weight:bold; color:green"></span>
-        <input id="step-z" class="slider-color" type="range" min="1" max="52" value="10">
-    </p>
-    <p>
-        Z Force:
-        <span id="force-z-value" style="font-weight:bold; color:green"></span>
-        <input id="force-z" class="slider-color" type="range" min="1" max="100" value="50">
-    </p>
-</div>
-
-<br>
-<p><a href="http://127.0.0.1:8082" target="pi-cam">Press to enable camera stream</a></p>
-<iframe width="640" height="480" id="pi-cam" name="pi-cam"></iframe>
 
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
