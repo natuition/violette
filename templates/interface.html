@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Manual control interface</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+    <!-- <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script> -->
+</head>
+
+<body>
+<h3 style="color: #ccc; font-size: 30px;">No response messages yet</h3>
+<div class="message_holder"></div>
+
+<br>
+<div class="arrows">
+    <!-- xy control -->
+    <button type="button" id="move-left">
+        <div class="arrow-left arrow"></div>
+    </button>
+    <div class="up-down-arrows arrow">
+        <button type="button" id="move-forward">
+            <div class="arrow-forward arrow"></div>
+        </button>
+        <button type="button" id="move-backward">
+            <div class="arrow-backward arrow"></div>
+        </button>
+    </div>
+    <button type="button" id="move-right">
+        <div class="arrow-right arrow"></div>
+    </button>
+
+    <!-- z control -->
+    <div style="margin:20px;"></div>
+    <div class="up-down-arrows arrow">
+        <button type="button" id="move-up">
+            <div class="arrow-forward arrow"></div>
+        </button>
+        <button type="button" id="move-down">
+            <div class="arrow-backward arrow"></div>
+        </button>
+    </div>
+
+    <!-- body control -->
+    <div style="margin:20px;"></div>
+    <button type="button" id="body-left">
+        <div class="arrow-left arrow"></div>
+    </button>
+    <div class="up-down-arrows arrow">
+        <button type="button" id="body-forward">
+            <div class="arrow-forward arrow"></div>
+        </button>
+        <button type="button" id="body-backward">
+            <div class="arrow-backward arrow"></div>
+        </button>
+    </div>
+    <button type="button" id="body-right">
+        <div class="arrow-right arrow"></div>
+    </button>
+</div>
+
+<div id="slidecontainer">
+    <p>
+        XY Step:
+        <span id="step-xy-value" style="font-weight:bold; color:green"></span>
+        <input id="step-xy" class="slider-color" type="range" min="1" max="78" value="20">
+    </p>
+    <p>
+        XY Force:
+        <span id="force-xy-value" style="font-weight:bold; color:green"></span>
+        <input id="force-xy" class="slider-color" type="range" min="1" max="100" value="50">
+    </p>
+    <p>
+        Z Step:
+        <span id="step-z-value" style="font-weight:bold; color:green"></span>
+        <input id="step-z" class="slider-color" type="range" min="1" max="52" value="10">
+    </p>
+    <p>
+        Z Force:
+        <span id="force-z-value" style="font-weight:bold; color:green"></span>
+        <input id="force-z" class="slider-color" type="range" min="1" max="100" value="50">
+    </p>
+</div>
+
+<br>
+<p><a href="http://127.0.0.1:8082" target="pi-cam">Press to enable camera stream</a></p>
+<iframe width="640" height="480" id="pi-cam" name="pi-cam"></iframe>
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='scripts/control.js') }}"></script>
+
+</body>
+</html>
