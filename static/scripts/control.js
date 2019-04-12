@@ -29,46 +29,64 @@ socket.on('connect', function() {
 		return {S: step, F: force}
     }
 
-    let send_values = function(values) {
-        console.log("Sending: " + JSON.stringify(values));
-        socket.emit('command', values);
+    let send_values = function(params) {
+        console.log("Sending: " + JSON.stringify(params));
+        socket.emit('command', params);
     }
 
     // x left -s
     let on_x_left_btn = function(event) {
         event.preventDefault();
         data = get_page_data("step-xy", "force-xy");
-        send_values({X: -data["S"], F: data["F"]});
+        send_values({
+            command: "extraction-move",
+            X: -data["S"],
+            F: data["F"]});
     }
     // x right +s
     let on_x_right_btn = function(event) {
         event.preventDefault();
         data = get_page_data("step-xy", "force-xy");
-        send_values({X: data["S"], F: data["F"]});
+        send_values({
+            command: "extraction-move",
+            X: data["S"],
+            F: data["F"]});
     }
     // y forward +s
     let on_y_forward_btn = function(event) {
         event.preventDefault();
         data = get_page_data("step-xy", "force-xy");
-        send_values({Y: data["S"], F: data["F"]});
+        send_values({
+            command: "extraction-move",
+            Y: data["S"],
+            F: data["F"]});
     }
     // y backward -s
     let on_y_backward_btn = function(event) {
         event.preventDefault();
         data = get_page_data("step-xy", "force-xy");
-        send_values({Y: -data["S"], F: data["F"]});
+        send_values({
+            command: "extraction-move",
+            Y: -data["S"],
+            F: data["F"]});
     }
     // z up +s
     let on_z_up_btn = function(event) {
         event.preventDefault();
         data = get_page_data("step-z", "force-z");
-        send_values({Z: data["S"], F: data["F"]});
+        send_values({
+            command: "extraction-move",
+            Z: data["S"],
+            F: data["F"]});
     }
     // z down -s
     let on_z_down_btn = function(event) {
         event.preventDefault();
         data = get_page_data("step-z", "force-z");
-        send_values({Z: -data["S"], F: data["F"]});
+        send_values({
+            command: "extraction-move",
+            Z: -data["S"],
+            F: data["F"]});
     }
 
     let on_left = $('#move-left').on('click', on_x_left_btn);

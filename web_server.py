@@ -28,6 +28,7 @@ smc = SmoothieConnector(SMOOTHIE_HOST, True)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'vnkdjnfjknfl1232#'
 socket_io = SocketIO(app)
+command_handlers = {}
 
 
 def read_until_contains(pattern):
@@ -76,12 +77,15 @@ def corkscrew_to_start_pos():
     move_until_stopper("Z", 1000)
     print("Ok")
     
-    z_current.value = Z_MAX
+    with z_current.get_lock():
+        z_current.value = Z_MAX
     smc.send("G92 Z{0}".format(z_current.value))
     read_until_contains("ok")
     '''
-    x_current.value = X_MIN
-    y_current.value = Y_MAX
+    with x_current.get_lock():
+        x_current.value = X_MIN
+    with y_current.get_lock():
+        y_current.value = Y_MAX
     smc.send("G92 X{0} Y{1}".format(x_current.value, y_current.value))
     read_until_contains("ok")
 
@@ -109,23 +113,31 @@ def validate_moving_key(params, key_name, key_min, key_max, current_value):
     return None
 
 
-@app.route('/')
-def sessions():
-    return render_template('interface.html')
+def extraction_move_cmd_handler(params):
+    # F key should be present anyway
+    if "F" not in params:
+        send_response("F key is missed, " + NOT_SENT_MSG)
+        return
+    else:
+        error_msg = validate_moving_key(params, "F", F_MIN, F_MAX, 0)
+        if not (error_msg is None):
+            send_response(error_msg)
+            return
 
+    # at least one of X Y Z keys should be present
+    if "X" not in params and "Y" not in params and "Z" not in params:
+        send_response("At least one of X Y Z keys should be present, none found, " + NOT_SENT_MSG)
+        return
 
-@socket_io.on('command')
-def on_command(params, methods=['GET', 'POST']):
     g_code = "G0 "
 
     # check and add X key (x axis)
     if "X" in params:
         error_msg = validate_moving_key(params, "X", X_MIN, X_MAX, x_current.value)
         if error_msg is None:
-            x = params["X"]
             with x_current.get_lock():
-                x_current.value += x
-            g_code += "X" + str(x) + " "
+                x_current.value += params["X"]
+            g_code += "X" + str(params["X"]) + " "
         else:
             send_response(error_msg)
             return
@@ -134,10 +146,9 @@ def on_command(params, methods=['GET', 'POST']):
     if "Y" in params:
         error_msg = validate_moving_key(params, "Y", Y_MIN, Y_MAX, y_current.value)
         if error_msg is None:
-            y = params["Y"]
             with y_current.get_lock():
-                y_current.value += y
-            g_code += "Y" + str(y) + " "
+                y_current.value += params["Y"]
+            g_code += "Y" + str(params["Y"]) + " "
         else:
             send_response(error_msg)
             return
@@ -146,42 +157,49 @@ def on_command(params, methods=['GET', 'POST']):
     if "Z" in params:
         error_msg = validate_moving_key(params, "Z", Z_MIN, Z_MAX, z_current.value)
         if error_msg is None:
-            z = params["Z"]
             with z_current.get_lock():
-                z_current.value += z
-            g_code += "Z" + str(z) + " "
+                z_current.value += params["Z"]
+            g_code += "Z" + str(params["Z"]) + " "
         else:
             send_response(error_msg)
             return
 
-    # check and add F key (force)
-    if "F" in params:
-        error_msg = validate_moving_key(params, "F", F_MIN, F_MAX, 0)
-        if error_msg is None:
-            g_code += "F" + str(params["F"])
-        else:
-            send_response(error_msg)
-            return
-
+    g_code += "F" + str(params["F"])
     print("Converted to g-code: " + g_code + ", sending...")
 
-    # stub for testing without real smoothie connection
-    response = "ok (USING STUB INSTEAD OF SMOOTHIE CONNECTION)"  # COMMENT IF USING SMOOTHIE
+    # COMMENT IF USING SMOOTHIE (stub for testing without real smoothie connection)
+    response = "ok (USING STUB INSTEAD OF REAL SMOOTHIE CONNECTION)"
 
     # UNCOMMENT THAT BLOCK IF YOU USING SMOOTHIE
     """
     smc.send(g_code)
-    while True:
-        response = smc.receive()
-        if response != ">":
-            break
+    response = read_until_not(">")
     """
 
     send_response(g_code + ": " + response + ", " + cur_coords_str())
+command_handlers["extraction-move"] = extraction_move_cmd_handler
+
+
+def start_engines_cmd_handler(params):
+    pass
+
+
+def stop_engines_cmd_handler(params):
+    pass
+
+
+@app.route('/')
+def sessions():
+    return render_template('interface.html')
+
+
+@socket_io.on('command')
+def on_command(params, methods=['GET', 'POST']):
+    command_handlers[params["command"]](params)
 
 
 def main():
-    # UNCOMMENT THIS BLOCK
+    # UNCOMMENT THIS BLOCK IF USING SMOOTHIE
     '''
     print("Connecting to smoothie...")
     smc.connect()
