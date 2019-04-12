@@ -1,23 +1,21 @@
 // auto update step and force values on the page
-let step_xy = document.getElementById("step-xy");
-let force_xy = document.getElementById("force-xy");
-let step_z = document.getElementById("step-z");
-let force_z = document.getElementById("force-z");
-
-let step_xy_value = document.getElementById("step-xy-value");
-let force_xy_value = document.getElementById("force-xy-value");
-let step_z_value = document.getElementById("step-z-value");
-let force_z_value = document.getElementById("force-z-value");
-
-step_xy_value.innerHTML = step_xy.value;
-force_xy_value.innerHTML = force_xy.value;
-step_z_value.innerHTML = step_z.value;
-force_z_value.innerHTML = force_z.value;
-
-step_xy.oninput = function () {step_xy_value.innerHTML = this.value;}
-force_xy.oninput = function () {force_xy_value.innerHTML = this.value;}
-step_z.oninput = function () {step_z_value.innerHTML = this.value;}
-force_z.oninput = function () {force_z_value.innerHTML = this.value;}
+let step_xy_input = document.getElementById("step-xy-input");
+let step_xy_range = document.getElementById("step-xy-range");
+let force_xy_input = document.getElementById("force-xy-input");
+let force_xy_range = document.getElementById("force-xy-range");
+let step_z_input = document.getElementById("step-z-input");
+let step_z_range = document.getElementById("step-z-range");
+let force_z_input = document.getElementById("force-z-input");
+let force_z_range = document.getElementById("force-z-range");
+// apply changes from one input to another
+step_xy_input.oninput = function () {step_xy_range.value = this.value;}
+step_xy_range.oninput = function () {step_xy_input.value = this.value;}
+force_xy_input.oninput = function () {force_xy_range.value = this.value;}
+force_xy_range.oninput = function () {force_xy_input.value = this.value;}
+step_z_input.oninput = function () {step_z_range.value = this.value;}
+step_z_range.oninput = function () {step_z_input.value = this.value;}
+force_z_input.oninput = function () {force_z_range.value = this.value;}
+force_z_range.oninput = function () {force_z_input.value = this.value;}
 
 // buttons handlers and data sending/receiving
 let socket = io.connect('http://' + document.domain + ':' + location.port);
