@@ -7,23 +7,24 @@ let step_z_input = document.getElementById("step-z-input");
 let step_z_range = document.getElementById("step-z-range");
 let force_z_input = document.getElementById("force-z-input");
 let force_z_range = document.getElementById("force-z-range");
+
 // apply changes from one input to another
-step_xy_input.oninput = function () {step_xy_range.value = this.value;}
+step_xy_input.oninput = function () {if (this.value !== "") {step_xy_range.value = this.value;}}
 step_xy_range.oninput = function () {step_xy_input.value = this.value;}
-force_xy_input.oninput = function () {force_xy_range.value = this.value;}
+force_xy_input.oninput = function () {if (this.value !== "") {force_xy_range.value = this.value;}}
 force_xy_range.oninput = function () {force_xy_input.value = this.value;}
-step_z_input.oninput = function () {step_z_range.value = this.value;}
+step_z_input.oninput = function () {if (this.value !== "") {step_z_range.value = this.value;}}
 step_z_range.oninput = function () {step_z_input.value = this.value;}
-force_z_input.oninput = function () {force_z_range.value = this.value;}
+force_z_input.oninput = function () {if (this.value !== "") {force_z_range.value = this.value;}}
 force_z_range.oninput = function () {force_z_input.value = this.value;}
 
 // buttons handlers and data sending/receiving
 let socket = io.connect('http://' + document.domain + ':' + location.port);
 
 socket.on('connect', function() {
-    let get_page_data = function(step_axis, force_axis) {
-        let step = Number(document.getElementById(step_axis).value);
-		let force = Number(document.getElementById(force_axis).value);
+    let get_page_data = function(step_axis_id, force_axis_id) {
+        let step = Number(document.getElementById(step_axis_id).value);
+		let force = Number(document.getElementById(force_axis_id).value);
 		return {S: step, F: force}
     }
 
@@ -35,7 +36,7 @@ socket.on('connect', function() {
     // x left -s
     let on_x_left_btn = function(event) {
         event.preventDefault();
-        data = get_page_data("step-xy", "force-xy");
+        data = get_page_data("step-xy-range", "force-xy-range");
         send_values({
             command: "extraction-move",
             X: -data["S"],
@@ -44,7 +45,7 @@ socket.on('connect', function() {
     // x right +s
     let on_x_right_btn = function(event) {
         event.preventDefault();
-        data = get_page_data("step-xy", "force-xy");
+        data = get_page_data("step-xy-range", "force-xy-range");
         send_values({
             command: "extraction-move",
             X: data["S"],
@@ -53,7 +54,7 @@ socket.on('connect', function() {
     // y forward +s
     let on_y_forward_btn = function(event) {
         event.preventDefault();
-        data = get_page_data("step-xy", "force-xy");
+        data = get_page_data("step-xy-range", "force-xy-range");
         send_values({
             command: "extraction-move",
             Y: data["S"],
@@ -62,7 +63,7 @@ socket.on('connect', function() {
     // y backward -s
     let on_y_backward_btn = function(event) {
         event.preventDefault();
-        data = get_page_data("step-xy", "force-xy");
+        data = get_page_data("step-xy-range", "force-xy-range");
         send_values({
             command: "extraction-move",
             Y: -data["S"],
@@ -71,7 +72,7 @@ socket.on('connect', function() {
     // z up +s
     let on_z_up_btn = function(event) {
         event.preventDefault();
-        data = get_page_data("step-z", "force-z");
+        data = get_page_data("step-z-range", "force-z-range");
         send_values({
             command: "extraction-move",
             Z: data["S"],
@@ -80,7 +81,7 @@ socket.on('connect', function() {
     // z down -s
     let on_z_down_btn = function(event) {
         event.preventDefault();
-        data = get_page_data("step-z", "force-z");
+        data = get_page_data("step-z-range", "force-z-range");
         send_values({
             command: "extraction-move",
             Z: -data["S"],
