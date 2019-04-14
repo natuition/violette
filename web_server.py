@@ -181,6 +181,22 @@ def extraction_move_cmd_handler(params):
     send_response(g_code + ": " + response + ", " + cur_coords_str())
 
 
+def set_axis_current_value_cmd_handler(params):
+    if "z_current" not in params:
+        send_response("Z current key is missing, " + NOT_SENT_MSG)
+        return
+
+    if params["z_current"] is None or params["z_current"] == "None" or params["z_current"] == "":
+        send_response("Z key is present but empty or contains None, " + NOT_SENT_MSG)
+        return
+
+    g_code = "G92 Z{0}".format(params["z_current"])
+    print("Converted to g-code: " + g_code + ", sending...")
+    smc.send(g_code)
+    response = read_until_not(">")
+    send_response(g_code + ": " + response + ", " + cur_coords_str())
+
+
 def start_engines_cmd_handler(params):
     pass
 

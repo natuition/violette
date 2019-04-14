@@ -69,8 +69,15 @@
                 <br>
                 <input id="force-z-range" class="slider-color" type="range" min="1" max="100" value="50">
             </p>
+            <p>
+                Manual setup Z axis current coords: <input id="z-current-input" type="number" value="0">
+                <button id="z-current-assign" type="button" onclick="on_z_current_assign_btn(event)">
+                    ASSIGN Z AXIS CURRENT COORDS
+                </button>
+            </p>
         </div>
     </div>
+
     <div class="rightmenu" style="display: block;">
         <p class="contur">
             <img src="{{ url_for('static', filename='images/base1.jpg') }}" class="base">

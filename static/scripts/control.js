@@ -107,6 +107,16 @@ socket.on('response', function(msg) {
     }
 });
 
+// on set Z axis btn handler
+function on_z_current_assign_btn(event) {
+    let z_current = Number(document.getElementById("z-current-input").value);
+    if (z_current !== "") {
+        send_values({
+                command: "set-z-current",
+                z_current: z_current});
+    }
+}
+
 // control tabs switch handler
 function on_tab_btn(event, tab_name) {
   // Declare all variables
@@ -128,6 +138,5 @@ function on_tab_btn(event, tab_name) {
   document.getElementById(tab_name).style.display = "block";
   event.currentTarget.className += " active";
 }
-
 // open default "opened" tab on page load
 document.getElementById("default-opened-tab").click();
