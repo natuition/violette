@@ -21,16 +21,16 @@ force_z_range.oninput = function () {force_z_input.value = this.value;}
 // buttons handlers and data sending/receiving
 let socket = io.connect('http://' + document.domain + ':' + location.port);
 
+function send_values(params) {
+    console.log("Sending: " + JSON.stringify(params));
+    socket.emit('command', params);
+}
+
 socket.on('connect', function() {
     let get_page_data = function(step_axis_id, force_axis_id) {
         let step = Number(document.getElementById(step_axis_id).value);
 		let force = Number(document.getElementById(force_axis_id).value);
 		return {S: step, F: force}
-    }
-
-    let send_values = function(params) {
-        console.log("Sending: " + JSON.stringify(params));
-        socket.emit('command', params);
     }
 
     // x left -s

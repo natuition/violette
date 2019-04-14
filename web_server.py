@@ -192,8 +192,10 @@ def set_axis_current_value_cmd_handler(params):
 
     g_code = "G92 Z{0}".format(params["z_current"])
     print("Converted to g-code: " + g_code + ", sending...")
-    smc.send(g_code)
-    response = read_until_not(">")
+    with z_current.get_lock():
+        smc.send(g_code)
+        response = read_until_contains("ok")
+        z_current.value = params["z_current"]
     send_response(g_code + ": " + response + ", " + cur_coords_str())
 
 
@@ -206,6 +208,7 @@ def stop_engines_cmd_handler(params):
 
 
 command_handlers["extraction-move"] = extraction_move_cmd_handler
+command_handlers["set-z-current"] = set_axis_current_value_cmd_handler
 
 
 # ROUTES AND CLIENT EVENTS
