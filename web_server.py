@@ -23,6 +23,7 @@ WEB_SERV_HOST = "127.0.0.1"  # for local testing
 x_current = Value('i', 0)
 y_current = Value('i', 0)
 z_current = Value('i', 0)
+engines_enabled = Value('i', 1)
 
 smc = SmoothieConnector(SMOOTHIE_HOST, True)
 app = Flask(__name__)
@@ -113,6 +114,7 @@ def validate_moving_key(params, key_name, key_min, key_max, current_value):
     return None
 
 
+# BUTTONS HANDLERS
 def extraction_move_cmd_handler(params):
     # F key should be present anyway
     if "F" not in params:
@@ -177,7 +179,6 @@ def extraction_move_cmd_handler(params):
     """
 
     send_response(g_code + ": " + response + ", " + cur_coords_str())
-command_handlers["extraction-move"] = extraction_move_cmd_handler
 
 
 def start_engines_cmd_handler(params):
@@ -188,9 +189,13 @@ def stop_engines_cmd_handler(params):
     pass
 
 
+command_handlers["extraction-move"] = extraction_move_cmd_handler
+
+
+# ROUTES AND CLIENT EVENTS
 @app.route('/')
 def sessions():
-    return render_template('interface.html')
+    return render_template('interface.html', engines_enabled=engines_enabled.value)
 
 
 @socket_io.on('command')

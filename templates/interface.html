@@ -26,9 +26,8 @@
                 <button type="button" id="move-forward">
                     <div class="arrow-forward arrow"></div>
                 </button>
-                <button type="button" id="startstop">
-                    <div class="startstop"></div>
-                    STARTSTOP
+                <button type="button">
+                    {{ "START" if engines_enabled == 0 else "STOP" }}
                 </button>
                 <button type="button" id="move-backward">
                     <div class="arrow-backward arrow"></div>
@@ -93,9 +92,8 @@
             <button type="button" id="body-forward">
                 <div class="arrow-forward arrow"></div>
             </button>
-            <button type="button" id="startstop">
-                <div class="startstop"></div>
-                STARTSTOP
+            <button type="button">
+                {{ "START" if engines_enabled == 0 else "STOP" }}
             </button>
             <button type="button" id="body-backward">
                 <div class="arrow-backward arrow"></div>
