@@ -126,16 +126,6 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='scripts/control.js') }}"></script>
-<script>
-window.onload = function() {
-  var c = document.getElementById("canvas");
-  var ctx = c.getContext("2d");
-  var img = document.getElementById("base");
-  ctx.drawImage(img, 10, 10);
-  ctx.lineWidth = 2;
-  ctx.fillRect(181, 150, 20, 20);
-}
-</script>
 
 </body>
 </html>

@@ -98,19 +98,18 @@ socket.on('connect', function() {
 });
 
 socket.on('response', function(msg) {
-	var xs="X=";
-  var ys="Y=";
-  var zs="Z=";
-  var x=parseInt(msg.slice(msg.search(xs)+2, msg.search(ys)-1));
-  var y=parseInt(msg.slice(msg.search(ys)+2, msg.search(zs)-1));
-  var img = document.getElementById("base");
-  var canvas = document.getElementById("canvas");
-  var ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, 613, 450);
-	ctx.drawImage(img, 10, 10);
-  ctx.fillRect(x+194, 240-y, 20, 20);
-  console.log("Got response:", msg);
-  
+    var xs = "X=";
+    var ys = "Y=";
+    var zs = "Z=";
+    var x = parseInt(msg.slice(msg.search(xs) + 2, msg.search(ys) - 1));
+    var y = parseInt(msg.slice(msg.search(ys) + 2, msg.search(zs) - 1));
+    var img = document.getElementById("base");
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, 613, 450);
+    ctx.drawImage(img, 10, 10);
+    ctx.fillRect(x + 194, 240 - y, 20, 20);
+    console.log("Got response:", msg);
 
 	if (typeof msg !== 'undefined') {
 		$('h3').remove();
@@ -131,24 +130,34 @@ function on_z_current_assign_btn(event) {
 
 // control tabs switch handler
 function on_tab_btn(event, tab_name) {
-  // Declare all variables
-  let i, tabcontent, tablinks;
+    // Declare all variables
+    let i, tabcontent, tablinks;
 
-  // Get all elements with class="tabcontent" and hide them
-  tabcontent = document.getElementsByClassName("tabcontent");
-  for (i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = "none";
-  }
+    // Get all elements with class="tabcontent" and hide them
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
 
-  // Get all elements with class="tablinks" and remove the class "active"
-  tablinks = document.getElementsByClassName("tablinks");
-  for (i = 0; i < tablinks.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace(" active", "");
-  }
+    // Get all elements with class="tablinks" and remove the class "active"
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
 
-  // Show the current tab, and add an "active" class to the button that opened the tab
-  document.getElementById(tab_name).style.display = "flex";
-  event.currentTarget.className += " active";
+    // Show the current tab, and add an "active" class to the button that opened the tab
+    document.getElementById(tab_name).style.display = "flex";
+    event.currentTarget.className += " active";
 }
 // open default "opened" tab on page load
 document.getElementById("default-opened-tab").click();
+
+// corkscrew current position area
+window.onload = function() {
+    var c = document.getElementById("canvas");
+    var ctx = c.getContext("2d");
+    var img = document.getElementById("base");
+    ctx.drawImage(img, 10, 10);
+    ctx.lineWidth = 2;
+    ctx.fillRect(181, 150, 20, 20);
+}
