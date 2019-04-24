@@ -12,13 +12,13 @@ Y_MAX = 79
 Z_MIN = 0
 Z_MAX = 52
 F_MIN = 1
-F_MAX = 100
+F_MAX = 1000
 NOT_SENT_MSG = "g-code wasn't sent to smoothie."
 
-SMOOTHIE_HOST = "192.168.1.222"
+SMOOTHIE_HOST = "169.254.232.224"
 WEB_SERV_PORT = 8080
-#WEB_SERV_HOST = "192.168.8.100"  # for testing using smoothie
-WEB_SERV_HOST = "127.0.0.1"  # for local testing
+WEB_SERV_HOST = "192.168.8.100"  # for testing using smoothie
+#WEB_SERV_HOST = "127.0.0.1"  # for local testing
 
 x_current = Value('i', 0)
 y_current = Value('i', 0)
@@ -64,12 +64,16 @@ def move_until_stopper(axis: str, direction: int):
 def corkscrew_to_start_pos():
     # move to X axis stopper and wait for ok
     print("Moving to X axis stopper...")
-    move_until_stopper("X", -1000)
+    #move_until_stopper("X", -1000)
+    smc.send("G28 X-1000")
+    read_until_contains("ok")
     print("Ok")
 
     # move to Y axis stopper and wait for ok
     print("Moving to Y axis stopper...")
-    move_until_stopper("Y", 1000)
+    #move_until_stopper("Y", 1000)
+    smc.send("G28 Y1000")
+    read_until_contains("ok")
     print("Ok")
 
     # move to Z axis stopper and wait for ok
@@ -84,11 +88,12 @@ def corkscrew_to_start_pos():
     read_until_contains("ok")
     '''
     with x_current.get_lock():
-        x_current.value = X_MIN
+        x_current.value = X_MIN+15
     with y_current.get_lock():
-        y_current.value = Y_MAX
+        y_current.value = Y_MAX-15
     smc.send("G92 X{0} Y{1}".format(x_current.value, y_current.value))
     read_until_contains("ok")
+    
 
 
 def send_response(msg):
@@ -105,10 +110,10 @@ def validate_moving_key(params, key_name, key_min, key_max, current_value):
 
     if params[key_name] is None or params[key_name] == "None":
         return "{0} key is present but value is None, ".format(key_name) + NOT_SENT_MSG
-    if current_value + params[key_name] >= key_max:
+    if current_value + params[key_name] > key_max:
         return "Command with {0}{1} goes beyond max acceptable range of {0}_MAX = {2}, "\
                    .format(key_name, params[key_name], key_max) + cur_coords_str() + ", " + NOT_SENT_MSG
-    if current_value + params[key_name] <= key_min:
+    if current_value + params[key_name] < key_min:
         return "Command with {0}{1} goes beyond min acceptable range of {0}_MIN = {2}, " \
                    .format(key_name, params[key_name], key_min) + cur_coords_str() + ", " + NOT_SENT_MSG
     return None
@@ -170,13 +175,13 @@ def extraction_move_cmd_handler(params):
     print("Converted to g-code: " + g_code + ", sending...")
 
     # COMMENT IF USING SMOOTHIE (stub for testing without real smoothie connection)
-    response = "ok (USING STUB INSTEAD OF REAL SMOOTHIE CONNECTION)"
+    #response = "ok (USING STUB INSTEAD OF REAL SMOOTHIE CONNECTION)"
 
     # UNCOMMENT THAT BLOCK IF YOU USING SMOOTHIE
-    """
+    #"""
     smc.send(g_code)
     response = read_until_not(">")
-    """
+    #"""
 
     send_response(g_code + ": " + response + ", " + cur_coords_str())
 
@@ -224,25 +229,25 @@ def on_command(params, methods=['GET', 'POST']):
 
 def main():
     # UNCOMMENT THIS BLOCK IF USING SMOOTHIE
-    '''
+    #'''
     print("Connecting to smoothie...")
     smc.connect()
     switch_to_relative()
-    '''
+    #'''
 
     # UNCOMMENT THIS BLOCK ONLY (!) IF STOPPERS ARE INSTALLED AND ENABLED, OR ENGINES MAY CRASH!
-    '''
-    move_corkscrew_to_start()
-    '''
+
+    corkscrew_to_start_pos()
+    
 
     socket_io.run(app, debug=True, host=WEB_SERV_HOST, port=WEB_SERV_PORT)
 
     # UNCOMMENT THIS BLOCK IF USING SMOOTHIE
-    '''
+    #'''
     print("Disconnecting from smoothie...")
     smc.disconnect()
     print("Done.")
-    '''
+    #'''
 
 
 if __name__ == '__main__':

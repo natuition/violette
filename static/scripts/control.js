@@ -98,7 +98,19 @@ socket.on('connect', function() {
 });
 
 socket.on('response', function(msg) {
-	console.log("Got response:", msg);
+	var xs="X=";
+  var ys="Y=";
+  var zs="Z=";
+  var x=parseInt(msg.slice(msg.search(xs)+2, msg.search(ys)-1));
+  var y=parseInt(msg.slice(msg.search(ys)+2, msg.search(zs)-1));
+  var img = document.getElementById("base");
+  var canvas = document.getElementById("canvas");
+  var ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, 613, 450);
+	ctx.drawImage(img, 10, 10);
+  ctx.fillRect(x+194, 240-y, 20, 20);
+  console.log("Got response:", msg);
+  
 
 	if (typeof msg !== 'undefined') {
 		$('h3').remove();
@@ -135,7 +147,7 @@ function on_tab_btn(event, tab_name) {
   }
 
   // Show the current tab, and add an "active" class to the button that opened the tab
-  document.getElementById(tab_name).style.display = "block";
+  document.getElementById(tab_name).style.display = "flex";
   event.currentTarget.className += " active";
 }
 // open default "opened" tab on page load

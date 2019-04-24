@@ -16,8 +16,8 @@
     <button class="tablinks" onclick="on_tab_btn(event, 'Extraction')" id="default-opened-tab">Extraction</button>
     <button class="tablinks" onclick="on_tab_btn(event, 'Navigation')">Navigation</button>
 </div>
-<div id="Extraction" class="tabcontent">
-    <div class="leftmenu" style="display: flex;">
+<div id="Extraction" class="tabcontent" style="display: flex;">
+    <div class="leftmenu" style="display: block;">
         <div class="arrows">
             <button type="button" id="move-left">
                 <div class="arrow-left arrow"></div>
@@ -55,9 +55,9 @@
                 <input id="step-xy-range" class="slider-color" type="range" min="1" max="78" value="1">
             </p>
             <p>
-                XY Force: <input id="force-xy-input" type="number" min="1" max="100" value="50">
+                XY Force: <input id="force-xy-input" type="number" min="1" max="1000" value="50">
                 <br>
-                <input id="force-xy-range" class="slider-color" type="range" min="1" max="100" value="50">
+                <input id="force-xy-range" class="slider-color" type="range" min="1" max="1000" value="50">
             </p>
             <p>
                 Z Step: <input id="step-z-input" type="number" min="1" max="52" value="1">
@@ -65,12 +65,14 @@
                 <input id="step-z-range" class="slider-color" type="range" min="1" max="52" value="1">
             </p>
             <p>
-                Z Force: <input id="force-z-input" type="number" min="1" max="100" value="50">
+                Z Force: <input id="force-z-input" type="number" min="1" max="1000" value="50">
                 <br>
-                <input id="force-z-range" class="slider-color" type="range" min="1" max="100" value="50">
+                <input id="force-z-range" class="slider-color" type="range" min="1" max="1000" value="50">
             </p>
             <p>
-                Manual setup Z axis current coords: <input id="z-current-input" type="number" value="0">
+                Manual setup Z axis current coords: 
+                <br>
+                <input id="z-current-input" type="number" value="0">
                 <button id="z-current-assign" type="button" onclick="on_z_current_assign_btn(event)">
                     ASSIGN Z AXIS CURRENT COORDS
                 </button>
@@ -80,7 +82,7 @@
 
     <div class="rightmenu" style="display: block;">
         <p class="contur">
-            <img src="{{ url_for('static', filename='images/base1.jpg') }}" class="base">
+            <img id="base" src="{{ url_for('static', filename='images/base1.jpg') }}" class="base" style="display:none">
         </p>
         <p class="can">
             <canvas id="canvas" width="613" height="450"></canvas>
@@ -115,8 +117,8 @@
         </button>
     </div>
 </div>
-<!-- <p><a href="http://127.0.0.1:8082" target="pi-cam">Press to enable camera stream</a></p> -->
-<iframe width="640" height="480" id="pi-cam" name="pi-cam" src="http://192.168.43.243:8082/index.html"></iframe>
+<!-- <p><a href="http://192.168.8.100:8082/index.html" target="pi-cam">Press to enable camera stream</a></p> -->
+<iframe width="640" height="480" id="pi-cam" name="pi-cam" src="http://192.168.8.100:8082/index.html"></iframe>
 <h3 style="color: #ccc; font-size: 30px;">No response messages yet</h3>
 <div class="message_holder"></div>
 
@@ -124,6 +126,16 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='scripts/control.js') }}"></script>
+<script>
+window.onload = function() {
+  var c = document.getElementById("canvas");
+  var ctx = c.getContext("2d");
+  var img = document.getElementById("base");
+  ctx.drawImage(img, 10, 10);
+  ctx.lineWidth = 2;
+  ctx.fillRect(181, 150, 20, 20);
+}
+</script>
 
 </body>
 </html>
