@@ -15,6 +15,7 @@ with open(CONFIG_LOCAL_PATH, "r") as file:
     config_local = json.loads(file.read())
 
 NOT_SENT_MSG = "g-code wasn't sent to smoothie."
+SIMULATING_SMOOTHIE_MSG = "ok (SIMULATING SMOOTHIE CONNECTION!)"
 
 x_current = Value('i', 0)
 y_current = Value('i', 0)
@@ -162,11 +163,11 @@ def extraction_move_cmd_handler(params):
     g_code += "F" + str(params["F"])
     print("Converted to g-code: " + g_code + ", sending...")
 
-    if config_local["USE_SMOOTHIE_CONNECTION_SIMULATION"]:
-        response = "ok (SIMULATING SMOOTHIE CONNECTION!)"
-    else:
+    if not config_local["USE_SMOOTHIE_CONNECTION_SIMULATION"]:
         smc.send(g_code)
         response = read_until_not(">")
+    else:
+        response = SIMULATING_SMOOTHIE_MSG
 
     send_response(g_code + ": " + response + ", " + cur_coords_str())
 
@@ -183,8 +184,11 @@ def set_axis_current_value_cmd_handler(params):
     g_code = "G92 Z{0}".format(params["z_current"])
     print("Converted to g-code: " + g_code + ", sending...")
     with z_current.get_lock():
-        smc.send(g_code)
-        response = read_until_contains("ok")
+        if not config_local["USE_SMOOTHIE_CONNECTION_SIMULATION"]:
+            smc.send(g_code)
+            response = read_until_contains("ok")
+        else:
+            response = SIMULATING_SMOOTHIE_MSG
         z_current.value = params["z_current"]
     send_response(g_code + ": " + response + ", " + cur_coords_str())
 
