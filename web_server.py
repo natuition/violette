@@ -1,8 +1,9 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, send_from_directory
 from flask_socketio import SocketIO
 from connectors import SmoothieConnector
 from multiprocessing import Value
 import json
+import os
 
 CONFIG_GLOBAL_PATH = "config/config_global.json"
 CONFIG_LOCAL_PATH = "config/config_local.json"
@@ -204,6 +205,11 @@ command_handlers["set-z-current"] = set_axis_current_value_cmd_handler
 @app.route('/')
 def sessions():
     return render_template('interface.html', engines_enabled=engines_enabled.value)
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static/images'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 @socket_io.on('command')
