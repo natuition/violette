@@ -85,9 +85,9 @@ def corkscrew_to_start_pos():
         print("Ok")
 
 
-def send_response(msg):
-    print(msg)
-    socket_io.emit('response', msg)
+def send_response(params):
+    print(params)
+    socket_io.emit('response', params)
 
 
 def cur_coords_str():
@@ -205,7 +205,7 @@ command_handlers["extraction-move"] = extraction_move_cmd_handler
 command_handlers["set-z-current"] = set_axis_current_value_cmd_handler
 
 
-# ROUTES AND CLIENT EVENTS
+# ROUTES
 @app.route('/')
 def sessions():
     return render_template('interface.html', engines_enabled=engines_enabled.value)
@@ -216,9 +216,10 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static/images'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
+# SOCKET IO EVENTS
 @socket_io.on('command')
 def on_command(params, methods=['GET', 'POST']):
-    command_handlers[params["command"]](params)
+    command_handlers[params["command_handler"]](params)
 
 
 def main():

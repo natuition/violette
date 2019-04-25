@@ -38,7 +38,7 @@ socket.on('connect', function() {
         event.preventDefault();
         data = get_page_data("step-xy-range", "force-xy-range");
         send_values({
-            command: "extraction-move",
+            command_handler: "extraction-move",
             X: -data["S"],
             F: data["F"]});
     }
@@ -47,7 +47,7 @@ socket.on('connect', function() {
         event.preventDefault();
         data = get_page_data("step-xy-range", "force-xy-range");
         send_values({
-            command: "extraction-move",
+            command_handler: "extraction-move",
             X: data["S"],
             F: data["F"]});
     }
@@ -56,7 +56,7 @@ socket.on('connect', function() {
         event.preventDefault();
         data = get_page_data("step-xy-range", "force-xy-range");
         send_values({
-            command: "extraction-move",
+            command_handler: "extraction-move",
             Y: data["S"],
             F: data["F"]});
     }
@@ -65,7 +65,7 @@ socket.on('connect', function() {
         event.preventDefault();
         data = get_page_data("step-xy-range", "force-xy-range");
         send_values({
-            command: "extraction-move",
+            command_handler: "extraction-move",
             Y: -data["S"],
             F: data["F"]});
     }
@@ -74,7 +74,7 @@ socket.on('connect', function() {
         event.preventDefault();
         data = get_page_data("step-z-range", "force-z-range");
         send_values({
-            command: "extraction-move",
+            command_handler: "extraction-move",
             Z: data["S"],
             F: data["F"]});
     }
@@ -83,7 +83,7 @@ socket.on('connect', function() {
         event.preventDefault();
         data = get_page_data("step-z-range", "force-z-range");
         send_values({
-            command: "extraction-move",
+            command_handler: "extraction-move",
             Z: -data["S"],
             F: data["F"]});
     }
@@ -123,7 +123,7 @@ function on_z_current_assign_btn(event) {
     let z_current = Number(document.getElementById("z-current-input").value);
     if (z_current !== "") {
         send_values({
-                command: "set-z-current",
+                command_handler: "set-z-current",
                 z_current: z_current});
     }
 }
