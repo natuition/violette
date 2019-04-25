@@ -90,8 +90,9 @@ def send_response(params):
     socket_io.emit('response', params)
 
 
-def cur_coords_str():
-    return "current coordinates: X={0} Y={1} Z={2}".format(x_current.value, y_current.value, z_current.value)
+def add_cur_coords_to(params: dict):
+    """This function takes response_params dict, and adds to that dict X Y Z current values by that keys"""
+    params["X"], params["Y"], params["Z"] = x_current.value, y_current.value, z_current.value
 
 
 def validate_moving_key(params, key_name, key_min, key_max, current_value):
@@ -101,28 +102,38 @@ def validate_moving_key(params, key_name, key_min, key_max, current_value):
         return "{0} key is present but value is None, ".format(key_name) + NOT_SENT_MSG
     if current_value + params[key_name] > key_max:
         return "Command with {0}{1} goes beyond max acceptable range of {0}_MAX = {2}, " \
-                   .format(key_name, params[key_name], key_max) + cur_coords_str() + ", " + NOT_SENT_MSG
+                   .format(key_name, params[key_name], key_max) + NOT_SENT_MSG
     if current_value + params[key_name] < key_min:
         return "Command with {0}{1} goes beyond min acceptable range of {0}_MIN = {2}, " \
-                   .format(key_name, params[key_name], key_min) + cur_coords_str() + ", " + NOT_SENT_MSG
+                   .format(key_name, params[key_name], key_min) + NOT_SENT_MSG
     return None
 
 
 # BUTTONS HANDLERS
 def extraction_move_cmd_handler(params):
+    # by this key command handler stored in backend, and response handler stored in frontend
+    handler_key = "extraction-move"
+    response_params = {"response_handler": handler_key, "executed_g_code": "(None)"}
+
     # F key should be present anyway
     if "F" not in params:
-        send_response("F key is missed, " + NOT_SENT_MSG)
+        response_params["error_message"] = "F key is missed, " + NOT_SENT_MSG
+        add_cur_coords_to(response_params)
+        send_response(response_params)
         return
     else:
         error_msg = validate_moving_key(params, "F", config_local["F_MIN"], config_local["F_MAX"], 0)
         if not (error_msg is None):
-            send_response(error_msg)
+            response_params["error_message"] = error_msg
+            add_cur_coords_to(response_params)
+            send_response(response_params)
             return
 
     # at least one of X Y Z keys should be present
     if "X" not in params and "Y" not in params and "Z" not in params:
-        send_response("At least one of X Y Z keys should be present, none found, " + NOT_SENT_MSG)
+        response_params["error_message"] = "At least one of X Y Z keys should be present, none found, " + NOT_SENT_MSG
+        add_cur_coords_to(response_params)
+        send_response(response_params)
         return
 
     g_code = "G0 "
@@ -135,7 +146,9 @@ def extraction_move_cmd_handler(params):
                 x_current.value += params["X"]
             g_code += "X" + str(params["X"]) + " "
         else:
-            send_response(error_msg)
+            response_params["error_message"] = error_msg
+            add_cur_coords_to(response_params)
+            send_response(response_params)
             return
 
     # check and add Y key (y axis)
@@ -146,7 +159,9 @@ def extraction_move_cmd_handler(params):
                 y_current.value += params["Y"]
             g_code += "Y" + str(params["Y"]) + " "
         else:
-            send_response(error_msg)
+            response_params["error_message"] = error_msg
+            add_cur_coords_to(response_params)
+            send_response(response_params)
             return
 
     # check and add Z key (z axis)
@@ -157,7 +172,9 @@ def extraction_move_cmd_handler(params):
                 z_current.value += params["Z"]
             g_code += "Z" + str(params["Z"]) + " "
         else:
-            send_response(error_msg)
+            response_params["error_message"] = error_msg
+            add_cur_coords_to(response_params)
+            send_response(response_params)
             return
 
     g_code += "F" + str(params["F"])
@@ -169,16 +186,27 @@ def extraction_move_cmd_handler(params):
     else:
         response = SIMULATING_SMOOTHIE_MSG
 
-    send_response(g_code + ": " + response + ", " + cur_coords_str())
+    response_params["executed_g_code"] = g_code
+    response_params["response_message"] = response
+    add_cur_coords_to(response_params)
+    send_response(response_params)
 
 
 def set_axis_current_value_cmd_handler(params):
+    # by this key command handler stored in backend, and response handler stored in frontend
+    handler_key = "set-z-current"
+    response_params = {"response_handler": handler_key, "executed_g_code": "(None)"}
+
     if "z_current" not in params:
-        send_response("Z current key is missing, " + NOT_SENT_MSG)
+        response_params["error_message"] = "Z current key is missing, " + NOT_SENT_MSG
+        add_cur_coords_to(response_params)
+        send_response(response_params)
         return
 
     if params["z_current"] is None or params["z_current"] == "None" or params["z_current"] == "":
-        send_response("Z key is present but empty or contains None, " + NOT_SENT_MSG)
+        response_params["error_message"] = "Z key is present but empty or contains None, " + NOT_SENT_MSG
+        add_cur_coords_to(response_params)
+        send_response(response_params)
         return
 
     g_code = "G92 Z{0}".format(params["z_current"])
@@ -190,7 +218,11 @@ def set_axis_current_value_cmd_handler(params):
         else:
             response = SIMULATING_SMOOTHIE_MSG
         z_current.value = params["z_current"]
-    send_response(g_code + ": " + response + ", " + cur_coords_str())
+
+    response_params["executed_g_code"] = g_code
+    response_params["response_message"] = response
+    add_cur_coords_to(response_params)
+    send_response(response_params)
 
 
 def start_engines_cmd_handler(params):

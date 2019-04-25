@@ -97,25 +97,35 @@ socket.on('connect', function() {
     // let on_stop = $('#stop').on('click', on_stop_btn);
 });
 
-socket.on('response', function(msg) {
-    var xs = "X=";
-    var ys = "Y=";
-    var zs = "Z=";
-    var x = parseInt(msg.slice(msg.search(xs) + 2, msg.search(ys) - 1));
-    var y = parseInt(msg.slice(msg.search(ys) + 2, msg.search(zs) - 1));
-    var img = document.getElementById("base");
-    var canvas = document.getElementById("canvas");
-    var ctx = canvas.getContext("2d");
+function add_message(msg){
+    if (typeof msg !== 'undefined') {
+        $('h3').remove();
+        $('div.message_holder').remove;
+        $('div.message_holder').append('<div>' + msg + '</div>');
+    }
+}
+
+function update_visualization(x, y, z) {
+    let img = document.getElementById("base");
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, 613, 450);
     ctx.drawImage(img, 10, 10);
     ctx.fillRect(x + 194, 240 - y, 20, 20);
-    console.log("Got response:", msg);
+}
 
-	if (typeof msg !== 'undefined') {
-		$('h3').remove();
-		$('div.message_holder').remove;
-		$('div.message_holder').append('<div>' + msg + '</div>');
+socket.on('response', function(response_params) {
+    if ("error_message" in response_params) {
+        let msg = "Response: executed g-code: " + response_params["executed_g_code"] + " - error: " + response_params["error_message"];
+        console.log(msg);
+        add_message(msg);
+        return;
     }
+
+    update_visualization(response_params["X"], response_params["Y"], response_params["Z"]);
+    let msg = "Response: executed g-code: " + response_params["executed_g_code"] + " - resp. msg.: " + response_params["response_message"];
+    console.log(msg);
+    add_message(msg);
 });
 
 // on set Z axis btn handler
