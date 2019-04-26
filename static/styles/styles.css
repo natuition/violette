@@ -138,3 +138,8 @@ iframe {
     z-index: 2;
     display: block;
 }
+
+#response_messages {
+    height: 200px;
+    overflow-y: auto;
+}

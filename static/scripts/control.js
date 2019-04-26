@@ -1,3 +1,6 @@
+// response messages block
+let response_messages = document.getElementById('response_messages');
+
 // auto update step and force values on the page
 let step_xy_input = document.getElementById("step-xy-input");
 let step_xy_range = document.getElementById("step-xy-range");
@@ -103,12 +106,20 @@ function on_enable_disable_engines_btn(event, command){
     });
 }
 
-function add_message(msg){
-    if (typeof msg !== 'undefined') {
-        $('h3').remove();
-        $('div.message_holder').remove;
-        $('div.message_holder').append('<div>' + msg + '</div>');
-    }
+function scrollToBottom() {
+    // scroll response messages to bottom
+	response_messages.scrollTop = response_messages.scrollHeight;
+}
+
+function add_message(msg) {
+    let shouldScroll = response_messages.scrollTop + response_messages.clientHeight === response_messages.scrollHeight;
+
+	let para = document.createElement("div");
+	let node = document.createTextNode(msg);
+	para.appendChild(node);
+	response_messages.appendChild(para);
+
+    if (!shouldScroll) {scrollToBottom();}
 }
 
 function update_visualization(x, y, z) {
@@ -124,15 +135,14 @@ function update_visualization(x, y, z) {
 
 socket.on('response', function(response_params) {
     update_visualization(response_params["X"], response_params["Y"], response_params["Z"]);
-
+    let msg = "";
     if ("error_message" in response_params) {
-        let msg = "Response: executed g-code: " + response_params["executed_g_code"] + " - error: " + response_params["error_message"];
-        console.log(msg);
-        add_message(msg);
-        return;
+        msg = "Response: executed g-code: " + response_params["executed_g_code"] + " - error: " + response_params["error_message"];
+    }
+    else {
+        msg = "Response: executed g-code: " + response_params["executed_g_code"] + " - resp. msg.: " + response_params["response_message"];
     }
 
-    let msg = "Response: executed g-code: " + response_params["executed_g_code"] + " - resp. msg.: " + response_params["response_message"];
     console.log(msg);
     add_message(msg);
 });
@@ -180,3 +190,6 @@ window.onload = function() {
     ctx.lineWidth = 2;
     ctx.fillRect(181, 150, 20, 20);
 }
+
+// response messages
+scrollToBottom();
