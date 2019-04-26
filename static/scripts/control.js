@@ -110,7 +110,9 @@ function update_visualization(x, y, z) {
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, 613, 450);
+    ctx.font = "15px Arial";
     ctx.drawImage(img, 10, 10);
+    ctx.fillText(`Current coordinates: X=${x} Y=${y} Z=${z}`, 10, 20);
     ctx.fillRect(x + 194, 240 - y, 20, 20);
 }
 
