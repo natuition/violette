@@ -94,8 +94,14 @@ socket.on('connect', function() {
     let on_backward = $('#move-backward').on('click', on_y_backward_btn);
     let on_up = $('#move-up').on('click', on_z_up_btn);
     let on_down = $('#move-down').on('click', on_z_down_btn);
-    // let on_stop = $('#stop').on('click', on_stop_btn);
 });
+
+function on_enable_disable_engines_btn(event, command){
+    send_values({
+        command_handler: "enable_disable_engines",
+        command: command
+    });
+}
 
 function add_message(msg){
     if (typeof msg !== 'undefined') {
@@ -117,6 +123,8 @@ function update_visualization(x, y, z) {
 }
 
 socket.on('response', function(response_params) {
+    update_visualization(response_params["X"], response_params["Y"], response_params["Z"]);
+
     if ("error_message" in response_params) {
         let msg = "Response: executed g-code: " + response_params["executed_g_code"] + " - error: " + response_params["error_message"];
         console.log(msg);
@@ -124,7 +132,6 @@ socket.on('response', function(response_params) {
         return;
     }
 
-    update_visualization(response_params["X"], response_params["Y"], response_params["Z"]);
     let msg = "Response: executed g-code: " + response_params["executed_g_code"] + " - resp. msg.: " + response_params["response_message"];
     console.log(msg);
     add_message(msg);

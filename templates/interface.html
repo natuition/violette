@@ -26,9 +26,6 @@
                 <button type="button" id="move-forward">
                     <div class="arrow-forward arrow"></div>
                 </button>
-                <button type="button">
-                    {{ "START" if engines_enabled == 0 else "STOP" }}
-                </button>
                 <button type="button" id="move-backward">
                     <div class="arrow-backward arrow"></div>
                 </button>
@@ -38,13 +35,23 @@
             </button>
 
             <!-- z control -->
-            <div style="margin:20px;"></div>
+
             <div class="up-down-arrows arrow">
                 <button type="button" id="move-up">
                     <div class="arrow-forward arrow"></div>
                 </button>
                 <button type="button" id="move-down">
                     <div class="arrow-backward arrow"></div>
+                </button>
+            </div>
+
+            <!-- start/stop -->
+            <div class="up-down-arrows arrow">
+                <button type="button" onclick="on_enable_disable_engines_btn(event, 'enable_engines')">
+                    <p>ENABLE ENGINES</p>
+                </button>
+                <button type="button" onclick="on_enable_disable_engines_btn(event, 'disable_engines')">
+                    <p>DISABLE ENGINES</p>
                 </button>
             </div>
         </div>
@@ -101,9 +108,6 @@
             <button type="button" id="body-forward">
                 <div class="arrow-forward arrow"></div>
             </button>
-            <button type="button">
-                {{ "START" if engines_enabled == 0 else "STOP" }}
-            </button>
             <button type="button" id="body-backward">
                 <div class="arrow-backward arrow"></div>
             </button>
@@ -111,10 +115,20 @@
         <button type="button" id="body-right">
             <div class="arrow-right arrow"></div>
         </button>
-        <button type="button" id="wheels">
-            <div class="wheels"></div>
-            Allign wheels
+
+        <button type="button" id="wheels" style="margin:5px">
+            <p>ALLIGN WHEELS</p>
         </button>
+
+        <!-- start/stop -->
+        <div class="up-down-arrows arrow">
+            <button type="button" onclick="on_enable_disable_engines_btn(event, 'enable_engines')">
+                <p>ENABLE ENGINES</p>
+            </button>
+            <button type="button" onclick="on_enable_disable_engines_btn(event, 'disable_engines')">
+                <p>DISABLE ENGINES</p>
+            </button>
+        </div>
     </div>
 </div>
 <!-- <p><a href="http://192.168.8.100:8082/index.html" target="pi-cam">Press to enable camera stream</a></p> -->

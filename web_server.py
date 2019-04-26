@@ -4,6 +4,7 @@ from connectors import SmoothieConnector
 from multiprocessing import Value
 import json
 import os
+import traceback
 
 CONFIG_GLOBAL_PATH = "config/config_global.json"
 CONFIG_LOCAL_PATH = "config/config_local.json"
@@ -20,7 +21,6 @@ SIMULATING_SMOOTHIE_MSG = "ok (SIMULATING SMOOTHIE CONNECTION!)"
 x_current = Value('i', 0)
 y_current = Value('i', 0)
 z_current = Value('i', 0)
-engines_enabled = Value('i', 1)
 
 smc = SmoothieConnector(config_local["SMOOTHIE_HOST"], True)
 app = Flask(__name__)
@@ -86,6 +86,7 @@ def corkscrew_to_start_pos():
 
 
 def send_response(params):
+    add_cur_coords_to(params)
     print(params)
     socket_io.emit('response', params)
 
@@ -118,21 +119,18 @@ def extraction_move_cmd_handler(params):
     # F key should be present anyway
     if "F" not in params:
         response_params["error_message"] = "F key is missed, " + NOT_SENT_MSG
-        add_cur_coords_to(response_params)
         send_response(response_params)
         return
     else:
         error_msg = validate_moving_key(params, "F", config_local["F_MIN"], config_local["F_MAX"], 0)
         if not (error_msg is None):
             response_params["error_message"] = error_msg
-            add_cur_coords_to(response_params)
             send_response(response_params)
             return
 
     # at least one of X Y Z keys should be present
     if "X" not in params and "Y" not in params and "Z" not in params:
         response_params["error_message"] = "At least one of X Y Z keys should be present, none found, " + NOT_SENT_MSG
-        add_cur_coords_to(response_params)
         send_response(response_params)
         return
 
@@ -147,7 +145,6 @@ def extraction_move_cmd_handler(params):
             g_code += "X" + str(params["X"]) + " "
         else:
             response_params["error_message"] = error_msg
-            add_cur_coords_to(response_params)
             send_response(response_params)
             return
 
@@ -160,7 +157,6 @@ def extraction_move_cmd_handler(params):
             g_code += "Y" + str(params["Y"]) + " "
         else:
             response_params["error_message"] = error_msg
-            add_cur_coords_to(response_params)
             send_response(response_params)
             return
 
@@ -173,7 +169,6 @@ def extraction_move_cmd_handler(params):
             g_code += "Z" + str(params["Z"]) + " "
         else:
             response_params["error_message"] = error_msg
-            add_cur_coords_to(response_params)
             send_response(response_params)
             return
 
@@ -188,7 +183,6 @@ def extraction_move_cmd_handler(params):
 
     response_params["executed_g_code"] = g_code
     response_params["response_message"] = response
-    add_cur_coords_to(response_params)
     send_response(response_params)
 
 
@@ -199,13 +193,11 @@ def set_axis_current_value_cmd_handler(params):
 
     if "z_current" not in params:
         response_params["error_message"] = "Z current key is missing, " + NOT_SENT_MSG
-        add_cur_coords_to(response_params)
         send_response(response_params)
         return
 
     if params["z_current"] is None or params["z_current"] == "None" or params["z_current"] == "":
         response_params["error_message"] = "Z key is present but empty or contains None, " + NOT_SENT_MSG
-        add_cur_coords_to(response_params)
         send_response(response_params)
         return
 
@@ -221,26 +213,48 @@ def set_axis_current_value_cmd_handler(params):
 
     response_params["executed_g_code"] = g_code
     response_params["response_message"] = response
-    add_cur_coords_to(response_params)
     send_response(response_params)
 
 
-def start_engines_cmd_handler(params):
-    pass
+def enable_disable_engines_cmd_handler(params):
+    # by this key command handler stored in backend, and response handler stored in frontend
+    handler_key = "enable_disable_engines"
+    response_params = {"response_handler": handler_key, "executed_g_code": "(None)"}
 
+    if "command" not in params:
+        response_params["error_message"] = "Command key is missing, " + NOT_SENT_MSG
+        send_response(response_params)
+        return
 
-def stop_engines_cmd_handler(params):
-    pass
+    if params["command"] == "enable_engines":
+        g_code = "M17"
+    elif params["command"] == "disable_engines":
+        g_code = "M84"
+    else:
+        response_params["error_message"] = "Command key is present, but contains invalid value, " + NOT_SENT_MSG
+        send_response(response_params)
+        return
+
+    if config_local["USE_SMOOTHIE_CONNECTION_SIMULATION"]:
+        response = SIMULATING_SMOOTHIE_MSG
+    else:
+        smc.send(g_code)
+        response = read_until_contains("ok")
+
+    response_params["executed_g_code"] = g_code
+    response_params["response_message"] = response
+    send_response(response_params)
 
 
 command_handlers["extraction-move"] = extraction_move_cmd_handler
 command_handlers["set-z-current"] = set_axis_current_value_cmd_handler
+command_handlers["enable_disable_engines"] = enable_disable_engines_cmd_handler
 
 
 # ROUTES
 @app.route('/')
 def sessions():
-    return render_template('interface.html', engines_enabled=engines_enabled.value)
+    return render_template('interface.html')
 
 
 @app.route('/favicon.ico')
@@ -251,7 +265,12 @@ def favicon():
 # SOCKET IO EVENTS
 @socket_io.on('command')
 def on_command(params, methods=['GET', 'POST']):
-    command_handlers[params["command_handler"]](params)
+    try:
+        command_handlers[params["command_handler"]](params)
+    except KeyboardInterrupt:
+        exit()
+    except Exception:
+        print(traceback.format_exc())
 
 
 def main():
