@@ -246,9 +246,35 @@ def enable_disable_engines_cmd_handler(params):
     send_response(response_params)
 
 
+def raw_g_code_cmd_handler(params):
+    # by this key command handler stored in backend, and response handler stored in frontend
+    handler_key = "raw_g_code"
+    response_params = {"response_handler": handler_key, "executed_g_code": "(None)"}
+
+    if "raw_g_code" not in params:
+        response_params["error_message"] = "raw_g_code key is missing, " + NOT_SENT_MSG
+        send_response(response_params)
+        return
+    if params["raw_g_code"] == "" or params["raw_g_code"] == "None" or params["raw_g_code"] is None:
+        response_params["error_message"] = "raw_g_code key is present, but empty or contains None, " + NOT_SENT_MSG
+        send_response(response_params)
+        return
+
+    if config_local["USE_SMOOTHIE_CONNECTION_SIMULATION"]:
+        response = SIMULATING_SMOOTHIE_MSG
+    else:
+        smc.send(params["raw_g_code"])
+        response = read_until_not(">")
+
+    response_params["executed_g_code"] = params["raw_g_code"]
+    response_params["response_message"] = response
+    send_response(response_params)
+
+
 command_handlers["extraction-move"] = extraction_move_cmd_handler
 command_handlers["set-z-current"] = set_axis_current_value_cmd_handler
 command_handlers["enable_disable_engines"] = enable_disable_engines_cmd_handler
+command_handlers["raw_g_code"] = raw_g_code_cmd_handler
 
 
 # ROUTES

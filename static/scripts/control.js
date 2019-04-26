@@ -106,6 +106,16 @@ function on_enable_disable_engines_btn(event, command){
     });
 }
 
+function on_send_raw_gcode_btn(){
+    let g_code_input = document.getElementById("raw_gcode_input");
+    let g_code = g_code_input.value;
+    g_code_input.value = "";
+    send_values({
+        command_handler: "raw_g_code",
+        raw_g_code: g_code
+    });
+}
+
 function scrollToBottom() {
     // scroll response messages to bottom
 	response_messages.scrollTop = response_messages.scrollHeight;
