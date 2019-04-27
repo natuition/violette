@@ -51,7 +51,7 @@ def switch_to_relative():
 def calibrate_axis(axis_current: Value, axis_label, axis_min_key, axis_max_key):
     distanse = 1000
     with axis_current.get_lock():
-        if config_local["X_AXIS_CALIBRATION_TO_MAX"]:
+        if config_local["{0}_AXIS_CALIBRATION_TO_MAX".format(axis_label)]:
             smc.send("G28 {0}{1}".format(axis_label, distanse))
             read_until_contains("ok")
             axis_current.value = config_local[axis_max_key] - config_local["AFTER_CALIBRATION_AXIS_OFFSET"]
