@@ -11,6 +11,7 @@ from threading import Thread
 from time import sleep, time
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from wsgiref.simple_server import make_server
+import json
 
 import picamera
 from ws4py.websocket import WebSocket
@@ -23,11 +24,20 @@ from ws4py.server.wsgiutils import WebSocketWSGIApplication
 
 ###########################################
 # CONFIGURATION
+CONFIG_GLOBAL_PATH = "config/config_global.json"
+CONFIG_LOCAL_PATH = "config/config_local.json"
+
+# load configuration from config files
+with open(CONFIG_GLOBAL_PATH, "r") as file:
+    config_global = json.loads(file.read())
+with open(CONFIG_LOCAL_PATH, "r") as file:
+    config_local = json.loads(file.read())
+
 WIDTH = 640
 HEIGHT = 480
 FRAMERATE = 24
-HTTP_PORT = 8082
-WS_PORT = 8084
+HTTP_PORT = config_local["STREAM_SERVER_PORT_HTTP"]
+WS_PORT = config_local["STREAM_SERVER_PORT_WS"]
 COLOR = u'#444'
 BGCOLOR = u'#333'
 JSMPEG_MAGIC = b'jsmp'

@@ -280,7 +280,9 @@ command_handlers["raw_g_code"] = raw_g_code_cmd_handler
 # ROUTES
 @app.route('/')
 def sessions():
-    return render_template('interface.html')
+    return render_template('interface.html',
+                           STREAM_SERVER_HOST=config_local["STREAM_SERVER_HOST"],
+                           STREAM_SERVER_PORT_HTTP=config_local["STREAM_SERVER_PORT_HTTP"])
 
 
 @app.route('/favicon.ico')
