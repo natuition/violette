@@ -55,6 +55,7 @@
                 </button>
             </div>
         </div>
+
         <div id="slidecontainer">
             <p>
                 XY Step: <input id="step-xy-input" type="number" min="1" max="78" value="1">
@@ -77,7 +78,7 @@
                 <input id="force-z-range" class="slider-color" type="range" min="1" max="1000" value="50">
             </p>
             <p>
-                Manual setup Z axis current coords: 
+                Manual setup Z axis current coords:
                 <br>
                 <input id="z-current-input" type="number" value="0">
                 <button id="z-current-assign" type="button" onclick="on_z_current_assign_btn(event)">
@@ -101,22 +102,22 @@
     <div class="arrows">
         <!-- body control -->
         <div style="margin:20px;"></div>
-        <button type="button" id="body-left">
+        <button type="button" id="navigation-left" onclick="on_navigation_left_btn(event)">
             <div class="arrow-left arrow"></div>
         </button>
         <div class="up-down-arrows arrow">
-            <button type="button" id="body-forward">
+            <button type="button" id="navigation-forward" onclick="on_navigation_forward_btn(event)">
                 <div class="arrow-forward arrow"></div>
             </button>
-            <button type="button" id="body-backward">
+            <button type="button" id="navigation-backward" onclick="on_navigation_backward_btn(event)">
                 <div class="arrow-backward arrow"></div>
             </button>
         </div>
-        <button type="button" id="body-right">
+        <button type="button" id="navigation-right" onclick="on_navigation_right_btn(event)">
             <div class="arrow-right arrow"></div>
         </button>
 
-        <button type="button" id="wheels" style="margin:5px">
+        <button type="button" id="align_wheels" style="margin:5px" onclick="on_align_wheels_center_btn(event)">
             <p>ALLIGN WHEELS</p>
         </button>
 
@@ -130,9 +131,34 @@
             </button>
         </div>
     </div>
+
+    <div>
+        <p>
+            Motion Step: <input id="motion-step-input" type="number" min="1" max="100" value="1">
+            <br>
+            <input id="motion-step-range" class="slider-color" type="range" min="1" max="100" value="1">
+        </p>
+        <p>
+            Motion Force: <input id="motion-force-input" type="number" min="1" max="500" value="50">
+            <br>
+            <input id="motion-force-range" class="slider-color" type="range" min="1" max="500" value="50">
+        </p>
+        <p>
+            Turning Step: <input id="turning-step-input" type="number" min="1" max="20" value="1">
+            <br>
+            <input id="turning-step-range" class="slider-color" type="range" min="1" max="20" value="1">
+        </p>
+        <p>
+            Turning Force: <input id="turning-force-input" type="number" min="1" max="500" value="50">
+            <br>
+            <input id="turning-force-range" class="slider-color" type="range" min="1" max="500" value="50">
+        </p>
+    </div>
 </div>
+
 <!-- <p><a href="http://192.168.8.100:8082/index.html" target="pi-cam">Press to enable camera stream</a></p> -->
-<iframe width="640" height="480" id="pi-cam" name="pi-cam" src="http://{{STREAM_SERVER_HOST}}:{{STREAM_SERVER_PORT_HTTP}}/index.html"></iframe>
+<iframe width="640" height="480" id="pi-cam" name="pi-cam"
+        src="http://{{STREAM_SERVER_HOST}}:{{STREAM_SERVER_PORT_HTTP}}/index.html"></iframe>
 
 <div id="response_messages">
     <div class="messages">

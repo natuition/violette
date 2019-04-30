@@ -1,7 +1,7 @@
 // response messages block
 let response_messages = document.getElementById('response_messages');
 
-// auto update step and force values on the page
+// extraction auto update step and force values on the page
 let step_xy_input = document.getElementById("step-xy-input");
 let step_xy_range = document.getElementById("step-xy-range");
 let force_xy_input = document.getElementById("force-xy-input");
@@ -11,7 +11,7 @@ let step_z_range = document.getElementById("step-z-range");
 let force_z_input = document.getElementById("force-z-input");
 let force_z_range = document.getElementById("force-z-range");
 
-// apply changes from one input to another
+// extraction - apply changes from one input to another
 step_xy_input.oninput = function () {if (this.value !== "") {step_xy_range.value = this.value;}}
 step_xy_range.oninput = function () {step_xy_input.value = this.value;}
 force_xy_input.oninput = function () {if (this.value !== "") {force_xy_range.value = this.value;}}
@@ -21,6 +21,27 @@ step_z_range.oninput = function () {step_z_input.value = this.value;}
 force_z_input.oninput = function () {if (this.value !== "") {force_z_range.value = this.value;}}
 force_z_range.oninput = function () {force_z_input.value = this.value;}
 
+// navigation auto update step and force values on the page
+let motion_step_input = document.getElementById("motion-step-input");
+let motion_step_range = document.getElementById("motion-step-range");
+let motion_force_input = document.getElementById("motion-force-input");
+let motion_force_range = document.getElementById("motion-force-range");
+let turning_step_input = document.getElementById("turning-step-input");
+let turning_step_range = document.getElementById("turning-step-range");
+let turning_force_input = document.getElementById("turning-force-input");
+let turning_force_range = document.getElementById("turning-force-range");
+
+// extraction - apply changes from one input to another
+motion_step_input.oninput = function () {if (this.value !== "") {motion_step_range.value = this.value;}}
+motion_step_range.oninput = function () {motion_step_input.value = this.value;}
+motion_force_input.oninput = function () {if (this.value !== "") {motion_force_range.value = this.value;}}
+motion_force_range.oninput = function () {motion_force_input.value = this.value;}
+turning_step_input.oninput = function () {if (this.value !== "") {turning_step_range.value = this.value;}}
+turning_step_range.oninput = function () {turning_step_input.value = this.value;}
+turning_force_input.oninput = function () {if (this.value !== "") {turning_force_range.value = this.value;}}
+turning_force_range.oninput = function () {turning_force_input.value = this.value;}
+
+
 // buttons handlers and data sending/receiving
 let socket = io.connect('http://' + document.domain + ':' + location.port);
 
@@ -29,13 +50,13 @@ function send_values(params) {
     socket.emit('command', params);
 }
 
-socket.on('connect', function() {
-    let get_page_data = function(step_axis_id, force_axis_id) {
-        let step = Number(document.getElementById(step_axis_id).value);
-		let force = Number(document.getElementById(force_axis_id).value);
-		return {S: step, F: force}
-    }
+function get_page_data(step_axis_id, force_axis_id) {
+    let step = Number(document.getElementById(step_axis_id).value);
+    let force = Number(document.getElementById(force_axis_id).value);
+    return {S: step, F: force}
+}
 
+socket.on('connect', function() {
     // x left -s
     let on_x_left_btn = function(event) {
         event.preventDefault();
@@ -143,21 +164,7 @@ function update_visualization(x, y, z) {
     ctx.fillRect(x + 194, 240 - y, 20, 20);
 }
 
-socket.on('response', function(response_params) {
-    update_visualization(response_params["X"], response_params["Y"], response_params["Z"]);
-    let msg = "";
-    if ("error_message" in response_params) {
-        msg = "Response: executed g-code: " + response_params["executed_g_code"] + " - error: " + response_params["error_message"];
-    }
-    else {
-        msg = "Response: executed g-code: " + response_params["executed_g_code"] + " - resp. msg.: " + response_params["response_message"];
-    }
-
-    console.log(msg);
-    add_message(msg);
-});
-
-// on set Z axis btn handler
+// on manual set Z axis btn handler
 function on_z_current_assign_btn(event) {
     let z_current = Number(document.getElementById("z-current-input").value);
     if (z_current !== "") {
@@ -167,9 +174,53 @@ function on_z_current_assign_btn(event) {
     }
 }
 
+// NAVIGATION
+function on_navigation_right_btn(event) {
+    event.preventDefault();
+    data = get_page_data("turning-step-range", "turning-force-range");
+    send_values({
+        command_handler: "navigation_turning",
+        E: data["S"],
+        F: data["F"]});
+}
+
+function on_navigation_left_btn(event) {
+    event.preventDefault();
+    data = get_page_data("turning-step-range", "turning-force-range");
+    send_values({
+        command_handler: "navigation_turning",
+        E: -data["S"],
+        F: data["F"]});
+}
+
+function on_navigation_forward_btn(event) {
+    event.preventDefault();
+    data = get_page_data("motion-step-range", "motion-force-range");
+    send_values({
+        command_handler: "navigation_motion",
+        E: data["S"],
+        F: data["F"]});
+}
+
+function on_navigation_backward_btn(event) {
+    event.preventDefault();
+    data = get_page_data("motion-step-range", "motion-force-range");
+    send_values({
+        command_handler: "navigation_motion",
+        E: -data["S"],
+        F: data["F"]});
+}
+
+function on_align_wheels_center_btn(event) {
+    event.preventDefault();
+    data = get_page_data("motion-step-range", "motion-force-range");
+    send_values({
+        command_handler: "align_wheels_center",
+        F: data["F"]});
+}
+
 // control tabs switch handler
 function on_tab_btn(event, tab_name) {
-    // Declare all variables
     let i, tabcontent, tablinks;
 
     // Get all elements with class="tabcontent" and hide them
@@ -190,6 +241,21 @@ function on_tab_btn(event, tab_name) {
 }
 // open default "opened" tab on page load
 document.getElementById("default-opened-tab").click();
+
+// SOCKET RESPONSE
+socket.on('response', function(response_params) {
+    update_visualization(response_params["X"], response_params["Y"], response_params["Z"]);
+    let msg = "";
+    if ("error_message" in response_params) {
+        msg = "Response: executed g-code: " + response_params["executed_g_code"] + " - error: " + response_params["error_message"];
+    }
+    else {
+        msg = "Response: executed g-code: " + response_params["executed_g_code"] + " - resp. msg.: " + response_params["response_message"];
+    }
+
+    console.log(msg);
+    add_message(msg);
+});
 
 // corkscrew current position area
 window.onload = function() {

@@ -21,6 +21,8 @@ SIMULATING_SMOOTHIE_MSG = "ok (SIMULATING SMOOTHIE CONNECTION!)"
 x_current = Value('i', 0)
 y_current = Value('i', 0)
 z_current = Value('i', 0)
+turning_motor_current = Value('i', 0)
+motor_mode = Value('i', -1)  # 0 = turning (left/right), 1 = motion (forward/backward), -1 = undefined
 
 smc = SmoothieConnector(config_local["SMOOTHIE_HOST"], True)
 app = Flask(__name__)
@@ -46,6 +48,26 @@ def read_until_not(value):
 def switch_to_relative():
     smc.send("G91")
     return read_until_not(">")
+
+
+def activate_turning_motor():
+    # left/right
+    if motor_mode.value != 0:
+        with motor_mode.get_lock():
+            if not config_local["USE_SMOOTHIE_CONNECTION_SIMULATION"]:
+                smc.send("T0")
+                read_until_contains("ok")
+            motor_mode.value = 0
+
+
+def activate_motion_motor():
+    # forward/backward
+    if motor_mode.value != 1:
+        with motor_mode.get_lock():
+            if not config_local["USE_SMOOTHIE_CONNECTION_SIMULATION"]:
+                smc.send("T1")
+                read_until_contains("ok")
+            motor_mode.value = 1
 
 
 def calibrate_axis(axis_current: Value, axis_label, axis_min_key, axis_max_key):
@@ -93,20 +115,21 @@ def send_response(params):
 
 def add_cur_coords_to(params: dict):
     """This function takes response_params dict, and adds to that dict X Y Z current values by that keys"""
-    params["X"], params["Y"], params["Z"] = x_current.value, y_current.value, z_current.value
+    params["X"], params["Y"], params["Z"], params["TURNING_MOTOR"] = \
+        x_current.value, y_current.value, z_current.value, turning_motor_current.value
 
 
-def validate_moving_key(params, key_name, key_min, key_max, current_value):
+def validate_moving_key(params, key_name, key_min, key_max, key_min_name, key_max_name, current_value):
     """For F current_value must be 0"""
 
     if params[key_name] is None or params[key_name] == "None":
         return "{0} key is present but value is None, ".format(key_name) + NOT_SENT_MSG
     if current_value + params[key_name] > key_max:
-        return "Command with {0}{1} goes beyond max acceptable range of {0}_MAX = {2}, " \
-                   .format(key_name, params[key_name], key_max) + NOT_SENT_MSG
+        return "Command with {0}{1} goes beyond max acceptable range of {2} = {3}, " \
+                   .format(key_name, params[key_name], key_max_name, key_max) + NOT_SENT_MSG
     if current_value + params[key_name] < key_min:
-        return "Command with {0}{1} goes beyond min acceptable range of {0}_MIN = {2}, " \
-                   .format(key_name, params[key_name], key_min) + NOT_SENT_MSG
+        return "Command with {0}{1} goes beyond min acceptable range of {2} = {3}, " \
+                   .format(key_name, params[key_name], key_min_name, key_min) + NOT_SENT_MSG
     return None
 
 
@@ -122,7 +145,7 @@ def extraction_move_cmd_handler(params):
         send_response(response_params)
         return
     else:
-        error_msg = validate_moving_key(params, "F", config_local["F_MIN"], config_local["F_MAX"], 0)
+        error_msg = validate_moving_key(params, "F", config_local["F_MIN"], config_local["F_MAX"], "F_MIN", "F_MAX", 0)
         if not (error_msg is None):
             response_params["error_message"] = error_msg
             send_response(response_params)
@@ -138,7 +161,7 @@ def extraction_move_cmd_handler(params):
 
     # check and add X key (x axis)
     if "X" in params:
-        error_msg = validate_moving_key(params, "X", config_local["X_MIN"], config_local["X_MAX"], x_current.value)
+        error_msg = validate_moving_key(params, "X", config_local["X_MIN"], config_local["X_MAX"], "X_MIN", "X_MAX", x_current.value)
         if error_msg is None:
             with x_current.get_lock():
                 x_current.value += params["X"]
@@ -150,7 +173,7 @@ def extraction_move_cmd_handler(params):
 
     # check and add Y key (y axis)
     if "Y" in params:
-        error_msg = validate_moving_key(params, "Y", config_local["Y_MIN"], config_local["Y_MAX"], y_current.value)
+        error_msg = validate_moving_key(params, "Y", config_local["Y_MIN"], config_local["Y_MAX"], "Y_MIN", "Y_MAX", y_current.value)
         if error_msg is None:
             with y_current.get_lock():
                 y_current.value += params["Y"]
@@ -162,7 +185,7 @@ def extraction_move_cmd_handler(params):
 
     # check and add Z key (z axis)
     if "Z" in params:
-        error_msg = validate_moving_key(params, "Z", config_local["Z_MIN"], config_local["Z_MAX"], z_current.value)
+        error_msg = validate_moving_key(params, "Z", config_local["Z_MIN"], config_local["Z_MAX"], "Z_MIN", "Z_MAX", z_current.value)
         if error_msg is None:
             with z_current.get_lock():
                 z_current.value += params["Z"]
@@ -271,10 +294,165 @@ def raw_g_code_cmd_handler(params):
     send_response(response_params)
 
 
+def navigation_motion_cmd_handler(params):
+    # by this key command handler stored in backend, and response handler stored in frontend
+    handler_key = "navigation_motion"
+    response_params = {"response_handler": handler_key, "executed_g_code": "(None)"}
+    g_code = "G0 "
+
+    # E key should be present anyway
+    if "E" not in params:
+        response_params["error_message"] = "E key is missed, " + NOT_SENT_MSG
+        send_response(response_params)
+        return
+    else:
+        error_msg = validate_moving_key(params, "E",
+                                        config_local["MOTION_MOTOR_E_MIN"], config_local["MOTION_MOTOR_E_MAX"],
+                                        "MOTION_MOTOR_E_MIN", "MOTION_MOTOR_E_MAX", 0)
+
+        if error_msg is None:
+            g_code += "E" + str(params["E"]) + " "
+        else:
+            response_params["error_message"] = error_msg
+            send_response(response_params)
+            return
+
+    # F key should be present anyway
+    if "F" not in params:
+        response_params["error_message"] = "F key is missed, " + NOT_SENT_MSG
+        send_response(response_params)
+        return
+    else:
+        error_msg = validate_moving_key(params, "F",
+                                        config_local["MOTION_MOTOR_F_MIN"], config_local["MOTION_MOTOR_F_MAX"],
+                                        "MOTION_MOTOR_F_MIN", "MOTION_MOTOR_F_MAX", 0)
+        if error_msg is None:
+            g_code += "F" + str(params["F"])
+        else:
+            response_params["error_message"] = error_msg
+            send_response(response_params)
+            return
+
+    print("Converted to g-code: " + g_code + ", sending...")
+
+    if not config_local["USE_SMOOTHIE_CONNECTION_SIMULATION"]:
+        if motor_mode.value != 1:
+            activate_motion_motor()
+        smc.send(g_code)
+        response = read_until_not(">")
+    else:
+        response = SIMULATING_SMOOTHIE_MSG
+
+    response_params["executed_g_code"] = g_code
+    response_params["response_message"] = response
+    send_response(response_params)
+
+
+def navigation_turning_cmd_handler(params):
+    # by this key command handler stored in backend, and response handler stored in frontend
+    handler_key = "navigation_turning"
+    response_params = {"response_handler": handler_key, "executed_g_code": "(None)"}
+    g_code = "G0 "
+
+    # E key should be present anyway
+    if "E" not in params:
+        response_params["error_message"] = "E key is missed, " + NOT_SENT_MSG
+        send_response(response_params)
+        return
+    else:
+        error_msg = validate_moving_key(params, "E",
+                                        config_local["TURNING_MOTOR_E_MIN"], config_local["TURNING_MOTOR_E_MAX"],
+                                        "TURNING_MOTOR_E_MIN", "TURNING_MOTOR_E_MAX", turning_motor_current.value)
+
+        if error_msg is None:
+            with turning_motor_current.get_lock():
+                turning_motor_current.value += params["E"]
+            g_code += "E" + str(params["E"]) + " "
+        else:
+            response_params["error_message"] = error_msg
+            send_response(response_params)
+            return
+
+    # F key should be present anyway
+    if "F" not in params:
+        response_params["error_message"] = "F key is missed, " + NOT_SENT_MSG
+        send_response(response_params)
+        return
+    else:
+        error_msg = validate_moving_key(params, "F",
+                                        config_local["TURNING_MOTOR_F_MIN"], config_local["TURNING_MOTOR_F_MAX"],
+                                        "TURNING_MOTOR_F_MIN", "TURNING_MOTOR_F_MAX", 0)
+        if error_msg is None:
+            g_code += "F" + str(params["F"])
+        else:
+            response_params["error_message"] = error_msg
+            send_response(response_params)
+            return
+
+    print("Converted to g-code: " + g_code + ", sending...")
+
+    if not config_local["USE_SMOOTHIE_CONNECTION_SIMULATION"]:
+        activate_turning_motor()
+        smc.send(g_code)
+        response = read_until_not(">")
+    else:
+        response = SIMULATING_SMOOTHIE_MSG
+
+    response_params["executed_g_code"] = g_code
+    response_params["response_message"] = response
+    send_response(response_params)
+
+
+def align_wheels_center_cmd_handler(params):
+    # by this key command handler stored in backend, and response handler stored in frontend
+    handler_key = "align_wheels_center"
+    response_params = {"response_handler": handler_key, "executed_g_code": "(None)"}
+
+    # F key should be present anyway
+    if "F" not in params:
+        response_params["error_message"] = "F key is missed, " + NOT_SENT_MSG
+        send_response(response_params)
+        return
+    else:
+        error_msg = validate_moving_key(params, "F",
+                                        config_local["TURNING_MOTOR_F_MIN"], config_local["TURNING_MOTOR_F_MAX"],
+                                        "TURNING_MOTOR_F_MIN", "TURNING_MOTOR_F_MAX", 0)
+        if not (error_msg is None):
+            response_params["error_message"] = error_msg
+            send_response(response_params)
+            return
+
+    # in case if wheels are already aigned
+    if turning_motor_current.value == 0:
+        response_params["response_message"] = "Already aligned, " + NOT_SENT_MSG
+        send_response(response_params)
+        return
+
+    with turning_motor_current.get_lock():
+        E = abs(turning_motor_current.value) if turning_motor_current.value < 0 else -turning_motor_current.value
+        turning_motor_current.value = 0
+    g_code = "G0 E" + str(E) + " F" + str(params["F"])
+    print("Converted to g-code: " + g_code + ", sending...")
+
+    if not config_local["USE_SMOOTHIE_CONNECTION_SIMULATION"]:
+        activate_turning_motor()
+        smc.send(g_code)
+        response = read_until_not(">")
+    else:
+        response = SIMULATING_SMOOTHIE_MSG
+
+    response_params["executed_g_code"] = g_code
+    response_params["response_message"] = response
+    send_response(response_params)
+
+
 command_handlers["extraction-move"] = extraction_move_cmd_handler
 command_handlers["set-z-current"] = set_axis_current_value_cmd_handler
 command_handlers["enable_disable_engines"] = enable_disable_engines_cmd_handler
 command_handlers["raw_g_code"] = raw_g_code_cmd_handler
+command_handlers["navigation_motion"] = navigation_motion_cmd_handler
+command_handlers["navigation_turning"] = navigation_turning_cmd_handler
+command_handlers["align_wheels_center"] = align_wheels_center_cmd_handler
 
 
 # ROUTES
@@ -309,6 +487,7 @@ def main():
         print("Ok")
 
     corkscrew_to_start_pos()
+    activate_motion_motor()
 
     socket_io.run(app, debug=True, host=config_local["WEB_SERVER_HOST"], port=config_local["WEB_SERVER_PORT"])
 
