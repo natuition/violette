@@ -127,8 +127,8 @@
   border-top: none;
 }
 iframe {
-    width: 100%;
-    height: 500px
+    width: 640px;
+    height: 480px
 }
 .contur {
     z-index: 1;

@@ -154,14 +154,80 @@ function add_message(msg) {
 }
 
 function update_visualization(x, y, z) {
-    let img = document.getElementById("base");
     let canvas = document.getElementById("canvas");
     let ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, 613, 450);
+    let Xm=378;
+    let Ym=141;
+    ctx.clearRect(0, 0, 578, 400);
     ctx.font = "15px Arial";
-    ctx.drawImage(img, 10, 10);
-    ctx.fillText(`Current coordinates: X=${x} Y=${y} Z=${z}`, 10, 20);
-    ctx.fillRect(x + 194, 240 - y, 20, 20);
+    ctx.globalAlpha = 1;
+    ctx.fillText(`Current coordinates: X=${x} Y=${y} Z=${z}`, 50, 20);
+    //circle
+    ctx.beginPath();
+    ctx.arc(x+15, Ym-y+20, 5, 0, Math.PI * 2, true);
+    ctx.stroke;
+    //rectangle
+    ctx.fillRect(Xm+65,Ym+10-(Ym-10)/17*(z/2), 20, 10);
+    //ctx.stroke;
+
+    ctx.font="15px Arial";
+    ctx.moveTo(15,Ym+20);
+    ctx.fillText("Y",10,15);
+    ctx.lineTo(15, 20);
+    ctx.lineTo(10,25);
+    ctx.moveTo(15,20);
+    ctx.lineTo(20,25);
+    ctx.moveTo(15,Ym+20);
+    ctx.lineTo(Xm+20, Ym+20);
+    ctx.lineTo(Xm+15, Ym+15);
+    ctx.moveTo(Xm+20, Ym+20);
+    ctx.lineTo(Xm+15, Ym+25);
+    ctx.fillText("X",Xm+25,Ym+25);
+    ctx.moveTo(Xm+50, Ym+20);
+    ctx.lineTo(Xm+100, Ym+20);
+    ctx.moveTo(Xm+75, Ym+20);
+    ctx.lineTo(Xm+75, 20);
+    ctx.lineTo(Xm+80, 25);
+    ctx.moveTo(Xm+75,20);
+    ctx.lineTo(Xm+70, 25);
+    ctx.fillText("Z",Xm+70,15);
+    ctx.stroke();
+    ctx.restore();
+    ctx.save();
+    //horizontal XY transperent lines
+    ctx.beginPath();
+    ctx.globalAlpha = 0.2;
+    for (i=10; i<=Ym-10; i+=10) {
+        ctx.moveTo(15,Ym+20-i);
+        ctx.lineTo(Xm+20,Ym+20-i);
+    }
+    ctx.stroke();
+    //horizontal Z transperent lines
+    j=0;
+    for (i=10; i<=Ym-10; i+=(Ym-10)/17) {
+        ctx.moveTo(Xm+65,Ym+20-i);
+        ctx.lineTo(Xm+85,Ym+20-i);
+        j++
+        if (j===5) {
+        ctx.fillText("5", Xm+85, Ym+25-i);
+        }
+        if (j===10) {
+        ctx.fillText("10", Xm+85, Ym+25-i);
+        }
+        if (j===15) {
+        ctx.fillText("15", Xm+85, Ym+25-i);
+        }
+    }
+    ctx.stroke();
+
+    //vertical XY transperent lines
+    ctx.beginPath();
+    ctx.globalAlpha = 0.2;
+    for (i=10; i<=Xm; i+=10) {
+        ctx.moveTo(15+i,20);
+        ctx.lineTo(15+i,Ym+20);
+    }
+    ctx.stroke();
 }
 
 // on manual set Z axis btn handler
@@ -213,7 +279,7 @@ function on_navigation_backward_btn(event) {
 
 function on_align_wheels_center_btn(event) {
     event.preventDefault();
-    data = get_page_data("motion-step-range", "motion-force-range");
+    data = get_page_data("motion-step-range", "turning-force-range");
     send_values({
         command_handler: "align_wheels_center",
         F: data["F"]});
@@ -261,10 +327,6 @@ socket.on('response', function(response_params) {
 window.onload = function() {
     var c = document.getElementById("canvas");
     var ctx = c.getContext("2d");
-    var img = document.getElementById("base");
-    ctx.drawImage(img, 10, 10);
-    ctx.lineWidth = 2;
-    ctx.fillRect(181, 150, 20, 20);
 }
 
 // response messages
