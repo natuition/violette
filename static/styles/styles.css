@@ -6,6 +6,10 @@
     margin-left: 20px;
     width: 50px;
     border-width: 0px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 0;
 }
 
 .slider-color {
@@ -67,6 +71,7 @@
     border-top: 30px solid transparent;
     border-bottom: 30px solid transparent;
     border-left: 30px solid green;
+
 }
 
 .arrow-left {
@@ -142,4 +147,10 @@ iframe {
 #response_messages {
     height: 200px;
     overflow-y: auto;
+}
+#navigation-left, #navigation-right, #navigation-forward, #navigation-backward {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+   appearance: none;
+   border-radius: 0;
 }

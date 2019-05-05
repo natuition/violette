@@ -164,12 +164,15 @@ function update_visualization(x, y, z) {
     ctx.fillText(`Current coordinates: X=${x} Y=${y} Z=${z}`, 50, 20);
     //circle
     ctx.beginPath();
-    ctx.arc(x+15, Ym-y+20, 5, 0, Math.PI * 2, true);
-    ctx.stroke;
+    ctx.fillStyle = 'red';
+	ctx.arc(x+15, Ym-y+20, 5, 0, Math.PI * 2, true);
+    ctx.closePath();
+	ctx.fill();
+	ctx.stroke;
     //rectangle
     ctx.fillRect(Xm+65,Ym+10-(Ym-10)/17*(z/2), 20, 10);
     //ctx.stroke;
-
+	ctx.fillStyle = 'black';
     ctx.font="15px Arial";
     ctx.moveTo(15,Ym+20);
     ctx.fillText("Y",10,15);
@@ -279,7 +282,7 @@ function on_navigation_backward_btn(event) {
 
 function on_align_wheels_center_btn(event) {
     event.preventDefault();
-    data = get_page_data("motion-step-range", "turning-force-range");
+    data = get_page_data("turning-step-range", "turning-force-range");
     send_values({
         command_handler: "align_wheels_center",
         F: data["F"]});
