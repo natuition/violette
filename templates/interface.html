@@ -1,176 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no" />
     <title>Manual control interface</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+    <link rel="shortcut icon" href="/static/images/favicon.ico" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}" />
     <!-- <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script> -->
-</head>
+  </head>
 
-<body>
+  <body>
+    <!-- begin Container -->
 
-<div class="tab">
-    <button class="tablinks" onclick="on_tab_btn(event, 'Extraction')" id="default-opened-tab">Extraction</button>
-    <button class="tablinks" onclick="on_tab_btn(event, 'Navigation')">Navigation</button>
-</div>
-<div id="Extraction" class="tabcontent" style="display: flex;">
-    <div class="leftmenu" style="display: block;">
-        <div class="arrows">
-            <button type="button" id="move-left">
-                <div class="arrow-left arrow"></div>
-            </button>
-            <div class="up-down-arrows arrow">
-                <button type="button" id="move-forward">
-                    <div class="arrow-forward arrow"></div>
-                </button>
-                <button type="button" id="move-backward">
-                    <div class="arrow-backward arrow"></div>
-                </button>
+    <div class="container">
+      <!-- begin App
+    =========================================================================== -->
+      <div class="app">
+        <nav class="app-nav-tabs">
+          <button class="btn btn_full-width tablinks app-nav-tabs__item active" onclick="on_tab_btn(event, 'Extraction')" id="default-opened-tab">Extraction</button>
+          <button class="btn btn_full-width tablinks app-nav-tabs__item" onclick="on_tab_btn(event, 'Navigation')">Navigation</button>
+        </nav>
+
+        <!-- begin App Body -->
+        <div class="app-body">
+          <!-- begin App-tabs-content -->
+          <div class="app-tabs-content">
+            <!-- begin Extraction Tab Panel -->
+            <div id="Extraction" class="extraction app-tabs-content__tab-panel tabcontent" role="tabpanel">
+              <div class="extraction__top">
+                <div class="extraction__top-left">
+                  <button type="button" onclick="on_enable_disable_engines_btn(event, 'disable_engines')" class="btn btn_round">Disable Engines</button>
+
+                  <!-- begin Range Box -->
+                  <div class="range-box range-box_vertical">
+                    <input id="step-xy-range" class="slider-color range-box__slider" type="range" min="1" max="78" value="1" />
+                    <div class="range-box__info"><span class="range-box__info-text">XY Step:</span> <input id="step-xy-input" type="number" min="1" max="78" value="1" class="range-box__info-value" /></div>
+                  </div>
+                  <!-- end Range Box -->
+
+                  <!-- begin joystick -->
+                  <div class="joystick">
+                    <span class="joystick__direction">xy</span>
+                    <div class="joystick__horizontal">
+                      <button type="button" id="move-left" class="joystick__nav-btn arrow arrow-left clear-btn"></button>
+                      <button type="button" id="move-right" class="joystick__nav-btn arrow arrow-right clear-btn"></button>
+                    </div>
+                    <div class="joystick__vertical">
+                      <button type="button" id="move-forward" class="joystick__nav-btn arrow arrow-forward clear-btn"></button>
+                      <button type="button" id="move-backward" class="joystick__nav-btn arrow arrow-backward clear-btn"></button>
+                    </div>
+                  </div>
+                  <!-- end joystick -->
+                </div>
+
+                <div class="extraction__top-right">
+                  <button type="button" onclick="on_enable_disable_engines_btn(event, 'enable_engines')" class="btn btn_round">Enable Engines</button>
+
+                  <!-- begin Range Box -->
+                  <div class="range-box range-box_vertical">
+                    <input id="step-z-range" class="slider-color range-box__slider" type="range" min="1" max="52" value="1" />
+                    <div class="range-box__info"><span class="range-box__info-text"> Z Step: </span> <input id="step-z-input" type="number" min="1" max="52" value="1" class="range-box__info-value" /></div>
+                  </div>
+                  <!-- end Range Box -->
+
+                  <!-- begin joystick -->
+                  <div class="joystick">
+                    <span class="joystick__direction">z</span>
+                    <div class="joystick__vertical">
+                      <button type="button" id="move-up" class="joystick__nav-btn arrow arrow-forward clear-btn"></button>
+                      <button type="button" id="move-down" class="joystick__nav-btn arrow arrow-backward clear-btn"></button>
+                    </div>
+                  </div>
+                  <!-- end joystick -->
+                </div>
+              </div>
+
+              <div class="extraction__second">
+                <div class="extraction__second-left">
+                  <!-- begin Range Box -->
+                  <div class="range-box range-box_margin_b_xs">
+                    <div class="range-box__info"><span class="range-box__info-text">XY Force: </span><input id="force-xy-input" type="number" min="1" max="10000" value="4000" class="range-box__info-value" /></div>
+                    <input id="force-xy-range" class="slider-color range-box__slider" type="range" min="1" max="10000" value="4000" />
+                  </div>
+                  <!-- end Range Box -->
+
+                  <!-- begin Range Box -->
+                  <div class="range-box">
+                    <div class="range-box__info"><span class="range-box__info-text">Z Force: </span><input id="force-z-input" type="number" min="1" max="10000" value="4000" class="range-box__info-value" /></div>
+                    <input id="force-z-range" class="slider-color range-box__slider" type="range" min="1" max="10000" value="4000" />
+                  </div>
+                  <!-- end Range Box -->
+                </div>
+                <div class="extraction__second-right">
+                  <span class="color-white d-block m-b-xs">Manual setup Z axis current coords:</span>
+                  <input id="z-current-input" type="number" value="30" class="input input_sm d-block m-b-xs-2 width-full" />
+                  <button id="z-current-assign" type="button" onclick="on_z_current_assign_btn(event)" class="btn btn_sm width-full m-b-xss">ASSIGN Z AXIS CURRENT COORDS</button>
+                </div>
+              </div>
+
+              <div class="extraction__bottom">
+                <canvas id="canvas" width="578" height="200"></canvas>
+              </div>
             </div>
-            <button type="button" id="move-right">
-                <div class="arrow-right arrow"></div>
-            </button>
+            <!-- end Extraction Tab Panel -->
 
-            <!-- z control -->
+            <!-- begin Navigation Tab Panel -->
+            <div id="Navigation" class="navigation app-tabs-content__tab-panel tabcontent" role="tabpanel" style="display:none;">
+              <div class="navigation__top">
+                <div class="navigation__top-left">
+                  <button type="button" onclick="on_enable_disable_engines_btn(event, 'disable_engines')" class="btn btn_round">Disable Engines</button>
 
-            <div class="up-down-arrows arrow">
-                <button type="button" id="move-up">
-                    <div class="arrow-forward arrow"></div>
-                </button>
-                <button type="button" id="move-down">
-                    <div class="arrow-backward arrow"></div>
-                </button>
+                  <!-- begin Range Box -->
+                  <div class="range-box range-box_vertical">
+                    <input id="motion-step-range" class="slider-color range-box__slider" type="range" min="1" max="1000" value="1" />
+                    <div class="range-box__info"><span class="range-box__info-text">Motion Step:</span> <input id="motion-step-input" type="number" min="1" max="1000" value="1" class="range-box__info-value" /></div>
+                  </div>
+                  <!-- end Range Box -->
+
+                  <!-- begin joystick -->
+                  <div class="joystick">
+                    <div class="joystick__vertical">
+                      <span class="joystick__direction"></span>
+                      <button type="button" id="navigation-forward" onclick="on_navigation_forward_btn(event)" class="joystick__nav-btn arrow arrow-forward clear-btn"></button>
+                      <button type="button" id="navigation-backward" onclick="on_navigation_backward_btn(event)" class="joystick__nav-btn arrow arrow-backward clear-btn"></button>
+                    </div>
+                  </div>
+                  <!-- end joystick -->
+                </div>
+
+                <div class="navigation__top-right">
+                  <button type="button" onclick="on_enable_disable_engines_btn(event, 'enable_engines')" class="btn btn_round">Enable Engines</button>
+
+                  <!-- begin Range Box -->
+                  <div class="range-box range-box_vertical">
+                    <input id="turning-step-range" class="slider-color range-box__slider" type="range" min="1" max="20" value="1" />
+                    <div class="range-box__info"><span class="range-box__info-text">Turning Step:</span><input id="turning-step-input" type="number" min="1" max="20" value="1" class="range-box__info-value" /></div>
+                  </div>
+                  <!-- end Range Box -->
+
+                  <!-- begin joystick -->
+                  <div class="joystick">
+                    <span class="joystick__direction"></span>
+                    <div class="joystick__horizontal">
+                      <button type="button" id="navigation-left" onclick="on_navigation_left_btn(event)" class="joystick__nav-btn arrow arrow-left clear-btn"></button>
+                      <button type="button" id="navigation-right" onclick="on_navigation_right_btn(event)" class="joystick__nav-btn arrow arrow-right clear-btn"></button>
+                    </div>
+                    <button type="button" id="align_wheels" onclick="on_align_wheels_center_btn(event)" class="joystick__bottom-btn btn">Align Wheels</button>
+                  </div>
+                  <!-- end joystick -->
+                </div>
+              </div>
+
+              <div class="navigation__second">
+                <!-- begin Range Box -->
+                <div class="range-box range-box_margin_b_xs">
+                  <div class="range-box__info"><span class="range-box__info-text">Motion Force: </span><input id="motion-force-input" type="number" min="1" max="1000" value="1000" class="range-box__info-value" /></div>
+                  <input id="motion-force-range" class="slider-color range-box__slider" type="range" min="1" max="1000" value="1000" />
+                </div>
+                <!-- end Range Box -->
+                <!-- begin Range Box -->
+                <div class="range-box">
+                  <div class="range-box__info"><span class="range-box__info-text">Turning Force: </span><input id="turning-force-input" type="number" min="1" max="500" value="500" class="range-box__info-value" /></div>
+                  <input id="turning-force-range" class="slider-color range-box__slider" type="range" min="1" max="500" value="500" />
+                </div>
+                <!-- end Range Box -->
+              </div>
             </div>
+            <!-- end Navigation Tab Panel -->
 
-            <!-- start/stop -->
-            <div class="up-down-arrows arrow">
-                <button type="button" onclick="on_enable_disable_engines_btn(event, 'enable_engines')">
-                    <p>ENABLE ENGINES</p>
-                </button>
-                <button type="button" onclick="on_enable_disable_engines_btn(event, 'disable_engines')">
-                    <p>DISABLE ENGINES</p>
-                </button>
+            <img src="../static/images/logo-white.png" alt="Natuition" class="app-tabs-content__logo" />
+            <iframe width="640" height="480" id="pi-cam" name="pi-cam" scrolling="No" class="app-tabs-content__video" src="http://{{ STREAM_SERVER_HOST }}:{{ STREAM_SERVER_PORT_HTTP }}/index.html"></iframe>
+          </div>
+          <!-- end App-tabs-content -->
+        </div>
+        <!-- end App Body -->
+        <footer class="footer">
+          <!-- begin Response messages -->
+          <h4 class="color-white">Console</h4>
+          <div id="response_messages" class="response-messages">
+            <div class="messages response-messages__text">
+              No response messages yet
             </div>
-        </div>
+          </div>
+          <!-- end Response messages -->
 
-        <div id="slidecontainer">
-            <p>
-                XY Step: <input id="step-xy-input" type="number" min="1" max="78" value="1">
-                <br>
-                <input id="step-xy-range" class="slider-color" type="range" min="1" max="78" value="1">
-            </p>
-            <p>
-                XY Force: <input id="force-xy-input" type="number" min="1" max="10000" value="4000">
-                <br>
-                <input id="force-xy-range" class="slider-color" type="range" min="1" max="10000" value="4000">
-            </p>
-            <p>
-                Z Step: <input id="step-z-input" type="number" min="1" max="52" value="1">
-                <br>
-                <input id="step-z-range" class="slider-color" type="range" min="1" max="52" value="1">
-            </p>
-            <p>
-                Z Force: <input id="force-z-input" type="number" min="1" max="10000" value="4000">
-                <br>
-                <input id="force-z-range" class="slider-color" type="range" min="1" max="10000" value="4000">
-            </p>
-            <p>
-                Manual setup Z axis current coords:
-                <br>
-                <input id="z-current-input" type="number" value="30">
-                <button id="z-current-assign" type="button" onclick="on_z_current_assign_btn(event)">
-                    ASSIGN Z AXIS CURRENT COORDS
-                </button>
-            </p>
-        </div>
+          <!-- begin G-Code -->
+          <div class="g-code">
+            <input id="raw_gcode_input" type="text" class="input width-full g-code__input" />
+            <button type="button" onclick="on_send_raw_gcode_btn()" class="btn g-code__btn">SEND G-CODE</button>
+          </div>
+          <!-- end G-Code -->
+        </footer>
+      </div>
+      <!-- end App
+    =========================================================================== -->
     </div>
+    <!-- end Container -->
+    <!-- <p><a href="http://192.168.8.100:8082/index.html" target="pi-cam">Press to enable camera stream</a></p> -->
 
-    <div class="rightmenu" style="display: block;">
-        <p class="can">
-            <canvas id="canvas" width="578" height="400"></canvas>
-        </p>
-    </div>
-</div>
-
-<div id="Navigation" class="tabcontent style="display: block">
-    <div class="arrows" style="display: block>
-        <!-- body control -->
-        <div style="margin:20px;"></div>
-        <button type="button" id="navigation-left" onclick="on_navigation_left_btn(event)">
-            <div class="arrow-left arrow"></div>
-        </button>
-        <div class="up-down-arrows arrow">
-            <button type="button" id="navigation-forward" onclick="on_navigation_forward_btn(event)">
-                <div class="arrow-forward arrow"></div>
-            </button>
-            <button type="button" id="navigation-backward" onclick="on_navigation_backward_btn(event)">
-                <div class="arrow-backward arrow"></div>
-            </button>
-        </div>
-        <button type="button" id="navigation-right" onclick="on_navigation_right_btn(event)">
-            <div class="arrow-right arrow"></div>
-        </button>
-
-        <button type="button" id="align_wheels" style="margin:5px" onclick="on_align_wheels_center_btn(event)">
-            <p>ALLIGN WHEELS</p>
-        </button>
-
-        <!-- start/stop -->
-        <div class="up-down-arrows arrow">
-            <button type="button" onclick="on_enable_disable_engines_btn(event, 'enable_engines')">
-                <p>ENABLE ENGINES</p>
-            </button>
-            <button type="button" onclick="on_enable_disable_engines_btn(event, 'disable_engines')">
-                <p>DISABLE ENGINES</p>
-            </button>
-        </div>
-
-    <div>
-        <p>
-            Motion Step: <input id="motion-step-input" type="number" min="1" max="1000" value="1">
-            <br>
-            <input id="motion-step-range" class="slider-color" type="range" min="1" max="1000" value="1">
-        </p>
-        <p>
-            Motion Force: <input id="motion-force-input" type="number" min="1" max="1000" value="1000">
-            <br>
-            <input id="motion-force-range" class="slider-color" type="range" min="1" max="1000" value="1000">
-        </p>
-        <p>
-            Turning Step: <input id="turning-step-input" type="number" min="1" max="20" value="1">
-            <br>
-            <input id="turning-step-range" class="slider-color" type="range" min="1" max="20" value="1">
-        </p>
-        <p>
-            Turning Force: <input id="turning-force-input" type="number" min="1" max="500" value="500">
-            <br>
-            <input id="turning-force-range" class="slider-color" type="range" min="1" max="500" value="500">
-        </p>
-    </div>
-</div>
-</div>
-
-<!-- <p><a href="http://192.168.8.100:8082/index.html" target="pi-cam">Press to enable camera stream</a></p> -->
-<iframe width="640" height="480" id="pi-cam" name="pi-cam" scrolling="No" 
-        src="http://{{STREAM_SERVER_HOST}}:{{STREAM_SERVER_PORT_HTTP}}/index.html"></iframe>
-
-<div id="response_messages">
-    <div class="messages">
-        No response messages yet
-    </div>
-</div>
-<div>
-    <input id="raw_gcode_input" type="text" style="width:30%">
-    <button type="button" onclick="on_send_raw_gcode_btn()">SEND G-CODE</button>
-</div>
-
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='scripts/control.js') }}"></script>
-
-</body>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='scripts/control.js') }}"></script>
+  </body>
 </html>
