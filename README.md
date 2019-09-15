@@ -13,7 +13,7 @@ stable code in master branch, but if you want to check another branch:
 
 then you have to install libraries and dependencies:
 
-    pip install -r "requirements.txt"
+    pip3 install -r "requirements.txt"
     
 after that checkout local configuration in config/config_local.json.
 If not exists - copy file config_local (example).json and rename it to config_local.json.
